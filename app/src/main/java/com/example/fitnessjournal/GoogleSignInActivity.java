@@ -64,6 +64,8 @@ public class GoogleSignInActivity extends BaseActivity implements
     private EditText mEmailField;
     private EditText mPasswordField;
 
+    public static final String EXTRA_MESSAGE_DISPLAYNAME = "com.example.fitnessjournal.displayname";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,7 +92,7 @@ public class GoogleSignInActivity extends BaseActivity implements
         // [START config_signin]
         // Configure Google Sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestIdToken("542384862250-j7og3k68pgkqvc12srktt7ejfbqqcupa.apps.googleusercontent.com")
                 .requestEmail()
                 .build();
         // [END config_signin]
@@ -224,6 +226,10 @@ public class GoogleSignInActivity extends BaseActivity implements
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             updateUI(user);
+                            Intent intent = new Intent(GoogleSignInActivity.this, HomeScreenActivity.class);
+                            intent.putExtra(EXTRA_MESSAGE_DISPLAYNAME, user.getDisplayName());
+                            startActivity(intent);
+
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());

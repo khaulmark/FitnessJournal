@@ -20,5 +20,9 @@
                     <category android:name="android.intent.category.LAUNCHER" />
                 </intent-filter>
         </activity>
+
+        <activity
+            android:name=".HomeScreenActivity" android:label="HomeScreen" android:parentActivityName=".GoogleSignInActivity">
+        </activity>
     </application>
 </manifest>
