@@ -20,8 +20,6 @@ public class HomeScreenActivity extends AppCompatActivity {
         //Get display name
         String displayName = intent.getStringExtra(EXTRA_MESSAGE_DISPLAYNAME);
 
-        TextView textView = (TextView) findViewById(R.id.displayNameText);
-        textView.setText(displayName);
-        Toast.makeText(this, displayName, Toast.LENGTH_LONG).show();
+
     }
 }
