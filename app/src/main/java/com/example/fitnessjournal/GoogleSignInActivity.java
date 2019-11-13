@@ -79,6 +79,10 @@ public class GoogleSignInActivity extends BaseActivity implements
         mEmailField = findViewById(R.id.fieldEmail);
         mPasswordField = findViewById(R.id.fieldPassword);
 
+        //For testing
+        mEmailField.setText("w@gmail.com");
+        mPasswordField.setText("password");
+
         // Button listeners
         findViewById(R.id.signInButton).setOnClickListener(this);
         findViewById(R.id.signOutButton).setOnClickListener(this);
@@ -133,6 +137,9 @@ public class GoogleSignInActivity extends BaseActivity implements
                             Log.d(TAG, "createUserWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             updateUI(user);
+                            Intent intent = new Intent(GoogleSignInActivity.this, HomeScreenActivity.class);
+                            intent.putExtra(EXTRA_MESSAGE_DISPLAYNAME, user.getUid());
+                            startActivity(intent);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "createUserWithEmail:failure", task.getException());
@@ -167,6 +174,10 @@ public class GoogleSignInActivity extends BaseActivity implements
                             Log.d(TAG, "signInWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             updateUI(user);
+                            Intent intent = new Intent(GoogleSignInActivity.this, HomeScreenActivity.class);
+                            Log.d("booty", user.getUid());
+                            intent.putExtra(EXTRA_MESSAGE_DISPLAYNAME, user.getUid());
+                            startActivity(intent);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
