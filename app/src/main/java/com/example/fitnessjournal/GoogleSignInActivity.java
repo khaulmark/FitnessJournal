@@ -64,7 +64,7 @@ public class GoogleSignInActivity extends BaseActivity implements
     private EditText mEmailField;
     private EditText mPasswordField;
 
-    public static final String EXTRA_MESSAGE_DISPLAYNAME = "com.example.fitnessjournal.displayname";
+    public static final String EXTRA_MESSAGE_FIREBASEID = "com.example.fitnessjournal.firebaseid";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,7 +117,7 @@ public class GoogleSignInActivity extends BaseActivity implements
         FirebaseUser currentUser = mAuth.getCurrentUser();
         updateUI(currentUser);
         Intent intent = new Intent(GoogleSignInActivity.this, HomeScreenActivity.class);
-        intent.putExtra(EXTRA_MESSAGE_DISPLAYNAME, currentUser.getUid());
+        intent.putExtra(EXTRA_MESSAGE_FIREBASEID, currentUser.getUid());
         startActivity(intent);
     }
     // [END on_start_check_user]
@@ -141,7 +141,7 @@ public class GoogleSignInActivity extends BaseActivity implements
                             FirebaseUser user = mAuth.getCurrentUser();
                             updateUI(user);
                             Intent intent = new Intent(GoogleSignInActivity.this, HomeScreenActivity.class);
-                            intent.putExtra(EXTRA_MESSAGE_DISPLAYNAME, user.getUid());
+                            intent.putExtra(EXTRA_MESSAGE_FIREBASEID, user.getUid());
                             startActivity(intent);
                         } else {
                             // If sign in fails, display a message to the user.
@@ -179,7 +179,7 @@ public class GoogleSignInActivity extends BaseActivity implements
                             updateUI(user);
                             Intent intent = new Intent(GoogleSignInActivity.this, HomeScreenActivity.class);
                             Log.d("booty", user.getUid());
-                            intent.putExtra(EXTRA_MESSAGE_DISPLAYNAME, user.getUid());
+                            intent.putExtra(EXTRA_MESSAGE_FIREBASEID, user.getUid());
                             startActivity(intent);
                         } else {
                             // If sign in fails, display a message to the user.
@@ -241,7 +241,7 @@ public class GoogleSignInActivity extends BaseActivity implements
                             FirebaseUser user = mAuth.getCurrentUser();
                             updateUI(user);
                             Intent intent = new Intent(GoogleSignInActivity.this, HomeScreenActivity.class);
-                            intent.putExtra(EXTRA_MESSAGE_DISPLAYNAME, user.getDisplayName());
+                            intent.putExtra(EXTRA_MESSAGE_FIREBASEID, user.getDisplayName());
                             startActivity(intent);
 
                         } else {
