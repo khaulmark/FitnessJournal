@@ -26,8 +26,14 @@
         </activity>
 
         <activity
-            android:name=".UploadProgramActivity" android:label="Upload" android:parentActivityName=".HomeScreenActivity">
+            android:name=".UploadProgramActivity" android:label="Upload" android:parentActivityName=".HomeScreenActivity" android:windowSoftInputMode="adjustPan|adjustResize">
         </activity>
+
+        <provider
+            android:authorities="com.example.fitnessjournal.Models.JournalProvider"
+            android:name=".Models.JournalProvider"
+            android:enabled="true"
+            android:exported="true" />
 
         <meta-data
             android:name="preloaded_fonts"

@@ -73,5 +73,6 @@
     <string name="favorites_btn">Favorites</string>
     <string name="howto_btn">How-To Guides</string>
 
-    <string name="workout_set_btn">Save Workout</string>
+    <string name="workout_set_btn">Save</string>
+    <string name="workout_discard_btn">Discard</string>
 </resources>

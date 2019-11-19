@@ -8,8 +8,12 @@
         android:id="@+id/row"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:fontFamily="@font/galindo"
         android:text="Sample Row"
-        android:textSize="18dp">
+        android:textAllCaps="false"
+        android:textColor="@color/colorAccent"
+        android:textSize="18sp">
     </TextView>
 
 

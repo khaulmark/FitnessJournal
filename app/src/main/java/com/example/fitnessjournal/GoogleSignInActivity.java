@@ -116,9 +116,11 @@ public class GoogleSignInActivity extends BaseActivity implements
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         updateUI(currentUser);
-        Intent intent = new Intent(GoogleSignInActivity.this, HomeScreenActivity.class);
-        intent.putExtra(EXTRA_MESSAGE_FIREBASEID, currentUser.getUid());
-        startActivity(intent);
+        if (currentUser != null) {
+            Intent intent = new Intent(GoogleSignInActivity.this, HomeScreenActivity.class);
+            intent.putExtra(EXTRA_MESSAGE_FIREBASEID, currentUser.getUid());
+            startActivity(intent);
+        }
     }
     // [END on_start_check_user]
 
