@@ -14,11 +14,29 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".GoogleSignInActivity" android:label="GoogleSignIn">
+            android:name=".GoogleSignInActivity" android:label="Sign-In">
                 <intent-filter>
                     <action android:name="android.intent.action.MAIN" />
                     <category android:name="android.intent.category.LAUNCHER" />
                 </intent-filter>
         </activity>
+
+        <activity
+            android:name=".HomeScreenActivity" android:label="Home" android:parentActivityName=".GoogleSignInActivity">
+        </activity>
+
+        <activity
+            android:name=".UploadProgramActivity" android:label="Upload" android:parentActivityName=".HomeScreenActivity" android:windowSoftInputMode="adjustPan|adjustResize">
+        </activity>
+
+        <provider
+            android:authorities="com.example.fitnessjournal.Models.JournalProvider"
+            android:name=".Models.JournalProvider"
+            android:enabled="true"
+            android:exported="true" />
+
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
     </application>
 </manifest>

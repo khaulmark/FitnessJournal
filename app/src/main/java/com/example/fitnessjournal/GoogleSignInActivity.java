@@ -64,6 +64,8 @@ public class GoogleSignInActivity extends BaseActivity implements
     private EditText mEmailField;
     private EditText mPasswordField;
 
+    public static final String EXTRA_MESSAGE_FIREBASEID = "com.example.fitnessjournal.firebaseid";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,6 +78,10 @@ public class GoogleSignInActivity extends BaseActivity implements
         mDetailTextView = findViewById(R.id.detail);
         mEmailField = findViewById(R.id.fieldEmail);
         mPasswordField = findViewById(R.id.fieldPassword);
+
+        //For testing
+        mEmailField.setText("w@gmail.com");
+        mPasswordField.setText("password");
 
         // Button listeners
         findViewById(R.id.signInButton).setOnClickListener(this);
@@ -90,7 +96,7 @@ public class GoogleSignInActivity extends BaseActivity implements
         // [START config_signin]
         // Configure Google Sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestIdToken("542384862250-j7og3k68pgkqvc12srktt7ejfbqqcupa.apps.googleusercontent.com")
                 .requestEmail()
                 .build();
         // [END config_signin]
@@ -110,6 +116,11 @@ public class GoogleSignInActivity extends BaseActivity implements
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         updateUI(currentUser);
+        if (currentUser != null) {
+            Intent intent = new Intent(GoogleSignInActivity.this, HomeScreenActivity.class);
+            intent.putExtra(EXTRA_MESSAGE_FIREBASEID, currentUser.getUid());
+            startActivity(intent);
+        }
     }
     // [END on_start_check_user]
 
@@ -131,6 +142,9 @@ public class GoogleSignInActivity extends BaseActivity implements
                             Log.d(TAG, "createUserWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             updateUI(user);
+                            Intent intent = new Intent(GoogleSignInActivity.this, HomeScreenActivity.class);
+                            intent.putExtra(EXTRA_MESSAGE_FIREBASEID, user.getUid());
+                            startActivity(intent);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "createUserWithEmail:failure", task.getException());
@@ -165,6 +179,10 @@ public class GoogleSignInActivity extends BaseActivity implements
                             Log.d(TAG, "signInWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             updateUI(user);
+                            Intent intent = new Intent(GoogleSignInActivity.this, HomeScreenActivity.class);
+                            Log.d("booty", user.getUid());
+                            intent.putExtra(EXTRA_MESSAGE_FIREBASEID, user.getUid());
+                            startActivity(intent);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
@@ -224,6 +242,10 @@ public class GoogleSignInActivity extends BaseActivity implements
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             updateUI(user);
+                            Intent intent = new Intent(GoogleSignInActivity.this, HomeScreenActivity.class);
+                            intent.putExtra(EXTRA_MESSAGE_FIREBASEID, user.getDisplayName());
+                            startActivity(intent);
+
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
