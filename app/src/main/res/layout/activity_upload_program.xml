@@ -9,6 +9,12 @@
         android:layout_height="wrap_content"
         android:id="@+id/dayList" />
 
+    <FrameLayout
+        android:id="@+id/placeholder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+    </FrameLayout>
+
     <Button
         android:id="@+id/btn_upload_program_inner"
         android:layout_width="match_parent"
@@ -20,11 +26,5 @@
         android:text="@string/upload_program_btn"
         android:textSize="20sp"
         android:theme="@style/ThemeOverlay.MyDarkButton" />
-
-    <FrameLayout
-        android:id="@+id/placeholder"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-    </FrameLayout>
 
 </LinearLayout>

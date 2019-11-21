@@ -3,8 +3,10 @@ package com.example.fitnessjournal;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -76,7 +78,7 @@ public class UploadProgramActivity extends AppCompatActivity implements View.OnC
         }
 
         FragmentManager fm = getSupportFragmentManager();
-        if(fm.getBackStackEntryCount()>0) {
+        for(int i = 0; i < fm.getBackStackEntryCount(); i++) {
             fm.popBackStack();
         }
     }
@@ -90,13 +92,32 @@ public class UploadProgramActivity extends AppCompatActivity implements View.OnC
     public void onClick(View v){
         switch (v.getId()){
             case R.id.btn_upload_program_inner:
-                workoutString.toString();
+                for (int i = 0; i < workoutString.size(); i++) {
+                    if (workoutString.get(i).contains("\n")) {
+                        String temp = workoutString.get(i).replace("\n", "|");
+                        workoutString.set(i, temp);
+                    }
+                }
+                StringBuilder stringBuilder = new StringBuilder();
+                for (String s : workoutString) {
+                    stringBuilder.append(s + "\n");
+                }
                 ContentValues myCV = new ContentValues();
-                myCV.put(JournalProvider.JOURNAL_TABLE_COL_PROGRAM, workoutString.toString());
+                myCV.put(JournalProvider.JOURNAL_TABLE_COL_PROGRAM, stringBuilder.toString());
                 getContentResolver().update(Uri.parse(JournalProvider.CONTENT_URI + "/" + ID), myCV, null, null);
 
                 //Error Check
                 // TODO Add a cursor to do some error checking... we want to see if the program added to db correctly
+                String[] projection = {
+                        JournalProvider.JOURNAL_TABLE_COL_ID,
+                        JournalProvider.JOURNAL_TABLE_COL_PROGRAM };
+
+                String[] selectionArgs = {
+                        ID };
+
+                Cursor myCursor = getContentResolver().query(JournalProvider.CONTENT_URI,projection,"_ID = ?",selectionArgs,null);
+                myCursor.moveToFirst();
+                Log.d("booty", DatabaseUtils.dumpCurrentRowToString(myCursor));
 
             default:
                 break;

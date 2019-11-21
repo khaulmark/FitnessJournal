@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -16,7 +17,7 @@ public class WorkoutSetFragment extends Fragment implements View.OnClickListener
     private EditText workoutEditText;
     private String workoutSet;
     private int fragmentPosition;
-
+    private InputMethodManager inputManager;
     private OnFragmentDoneListener listener;
 
     @Override
@@ -39,6 +40,8 @@ public class WorkoutSetFragment extends Fragment implements View.OnClickListener
         Button discardButton = (Button) rootView.findViewById(R.id.fragment_btn_discard_workout);
         saveButton.setOnClickListener(this);
         discardButton.setOnClickListener(this);
+
+        inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
 
         return rootView;
     }
@@ -72,5 +75,11 @@ public class WorkoutSetFragment extends Fragment implements View.OnClickListener
             default:
                 break;
         }
+
+        /*View focusedView = getActivity().getCurrentFocus();
+
+        if (focusedView != null) {
+            inputManager.hideSoftInputFromWindow(focusedView.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }*/
     }
 }

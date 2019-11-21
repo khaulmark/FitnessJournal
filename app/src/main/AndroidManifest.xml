@@ -26,7 +26,7 @@
         </activity>
 
         <activity
-            android:name=".UploadProgramActivity" android:label="Upload" android:parentActivityName=".HomeScreenActivity" android:windowSoftInputMode="adjustPan|adjustResize">
+            android:name=".UploadProgramActivity" android:label="Upload" android:parentActivityName=".HomeScreenActivity">
         </activity>
 
         <provider
