@@ -50,7 +50,7 @@ public class UploadProgramActivity extends AppCompatActivity implements View.OnC
         workoutDays.add("Saturday");
         
         for (int i = 0; i < workoutDays.size(); i++) {
-            workoutString.add(null);
+            workoutString.add("Rest");
         }
 
         MyAdapter adapter = new MyAdapter(this, workoutDays,
@@ -69,13 +69,8 @@ public class UploadProgramActivity extends AppCompatActivity implements View.OnC
     }
 
     @Override
-    public void OnFragmentDone(String editText, int position, boolean saveOrDiscard) {
-        if (saveOrDiscard) {
-            workoutString.set(position, editText);
-        }
-        else {
-            workoutString.set(position, null);
-        }
+    public void OnFragmentDone(String editText, int position) {
+        workoutString.set(position, editText);
 
         FragmentManager fm = getSupportFragmentManager();
         for(int i = 0; i < fm.getBackStackEntryCount(); i++) {
@@ -92,12 +87,6 @@ public class UploadProgramActivity extends AppCompatActivity implements View.OnC
     public void onClick(View v){
         switch (v.getId()){
             case R.id.btn_upload_program_inner:
-                for (int i = 0; i < workoutString.size(); i++) {
-                    if (workoutString.get(i).contains("\n")) {
-                        String temp = workoutString.get(i).replace("\n", "|");
-                        workoutString.set(i, temp);
-                    }
-                }
                 StringBuilder stringBuilder = new StringBuilder();
                 for (String s : workoutString) {
                     stringBuilder.append(s + "\n");

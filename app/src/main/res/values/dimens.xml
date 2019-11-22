@@ -11,4 +11,6 @@
     <dimen name="button_horizontal_margin">8dp</dimen>
     <dimen name="home_button_height">85dp</dimen>
     <dimen name="home_button_top_margin">6dp</dimen>
+
+    <dimen name="workout_set_frag_width">47dp</dimen>
 </resources>

@@ -2,6 +2,7 @@ package com.example.fitnessjournal;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +15,9 @@ import androidx.fragment.app.Fragment;
 
 public class WorkoutSetFragment extends Fragment implements View.OnClickListener {
 
-    private EditText workoutEditText;
+    //Edit texts for exercises
+    private EditText[][] exerciseEditText = new EditText[3][4];
+
     private String workoutSet;
     private int fragmentPosition;
     private InputMethodManager inputManager;
@@ -33,8 +36,34 @@ public class WorkoutSetFragment extends Fragment implements View.OnClickListener
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate (R.layout.workout_set_fragment, container, false);
-        workoutEditText = (EditText) rootView.findViewById(R.id.fragment_workout_edit);
-        workoutEditText.setText(workoutSet);
+
+        exerciseEditText[0][0] = (EditText) rootView.findViewById(R.id.exercise1_edittext);
+        exerciseEditText[0][1] = (EditText) rootView.findViewById(R.id.exercise1_sets_edittext);
+        exerciseEditText[0][2] = (EditText) rootView.findViewById(R.id.exercise1_reps_edittext);
+        exerciseEditText[0][3] = (EditText) rootView.findViewById(R.id.exercise1_weight_edittext);
+
+        exerciseEditText[1][0] = (EditText) rootView.findViewById(R.id.exercise2_edittext);
+        exerciseEditText[1][1] = (EditText) rootView.findViewById(R.id.exercise2_sets_edittext);
+        exerciseEditText[1][2] = (EditText) rootView.findViewById(R.id.exercise2_reps_edittext);
+        exerciseEditText[1][3] = (EditText) rootView.findViewById(R.id.exercise2_weight_edittext);
+
+        exerciseEditText[2][0] = (EditText) rootView.findViewById(R.id.exercise3_edittext);
+        exerciseEditText[2][1] = (EditText) rootView.findViewById(R.id.exercise3_sets_edittext);
+        exerciseEditText[2][2] = (EditText) rootView.findViewById(R.id.exercise3_reps_edittext);
+        exerciseEditText[2][3] = (EditText) rootView.findViewById(R.id.exercise3_weight_edittext);
+
+        if (!workoutSet.equals("Rest")) {
+            String[] workoutSplit = workoutSet.split("|");
+
+            for (int i = 0; i < workoutSplit.length; i++) {
+                Log.d("booty", workoutSplit[i]);
+                String[] exerciseSplit = workoutSplit[i].split(",");
+                for (int j = 0; j < exerciseSplit.length; j++) {
+                    Log.d("booty", exerciseSplit[j]);
+                    exerciseEditText[i][j].setText(exerciseSplit[j]);
+                }
+            }
+        }
 
         Button saveButton = (Button) rootView.findViewById(R.id.fragment_btn_save_workout);
         Button discardButton = (Button) rootView.findViewById(R.id.fragment_btn_discard_workout);
@@ -47,7 +76,7 @@ public class WorkoutSetFragment extends Fragment implements View.OnClickListener
     }
 
     public interface OnFragmentDoneListener {
-        void OnFragmentDone(String editText, int position, boolean saveOrDiscard);
+        void OnFragmentDone(String editText, int position);
     }
 
     @Override
@@ -65,11 +94,27 @@ public class WorkoutSetFragment extends Fragment implements View.OnClickListener
     public void onClick(View v){
         switch (v.getId()){
             case R.id.fragment_btn_save_workout:
-                listener.OnFragmentDone(workoutEditText.getText().toString(), fragmentPosition, true);
+                StringBuilder stringBuilder = new StringBuilder();
+
+                for (int i = 0; i < exerciseEditText.length; i++) {
+                    for (int j = 0; j < exerciseEditText[i].length - 1; j++) {
+                        if (j == 2) {
+                            stringBuilder.append(exerciseEditText[i][j] + "|");
+                        }
+                        else {
+                            stringBuilder.append(exerciseEditText[i][j] + ",");
+                        }
+                    }
+                }
+
+                String workoutSaveTextTrue = stringBuilder.toString();
+                Log.d("booty", workoutSaveTextTrue);
+                listener.OnFragmentDone(workoutSaveTextTrue, fragmentPosition);
                 break;
 
             case R.id.fragment_btn_discard_workout:
-                listener.OnFragmentDone(workoutEditText.getText().toString(), fragmentPosition, false);
+                String workoutSaveTextFalse = "Rest";
+                listener.OnFragmentDone(workoutSaveTextFalse, fragmentPosition);
                 break;
 
             default:
