@@ -14,7 +14,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".GoogleSignInActivity" android:label="Sign-In">
+            android:name=".Views.GoogleSignInActivity" android:label="Sign-In">
                 <intent-filter>
                     <action android:name="android.intent.action.MAIN" />
                     <category android:name="android.intent.category.LAUNCHER" />
@@ -22,11 +22,11 @@
         </activity>
 
         <activity
-            android:name=".HomeScreenActivity" android:label="Home" android:parentActivityName=".GoogleSignInActivity">
+            android:name=".Views.HomeScreenActivity" android:label="Home" android:parentActivityName=".Views.GoogleSignInActivity">
         </activity>
 
         <activity
-            android:name=".UploadProgramActivity" android:label="Upload" android:parentActivityName=".HomeScreenActivity">
+            android:name=".Views.UploadProgramActivity" android:label="Upload Program" android:parentActivityName=".Views.HomeScreenActivity">
         </activity>
 
         <provider

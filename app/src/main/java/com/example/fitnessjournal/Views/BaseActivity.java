@@ -1,4 +1,4 @@
-package com.example.fitnessjournal;
+package com.example.fitnessjournal.Views;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -7,6 +7,8 @@ import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.fitnessjournal.R;
 
 public abstract class BaseActivity extends AppCompatActivity {
 

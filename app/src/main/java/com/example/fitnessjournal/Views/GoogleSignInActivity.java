@@ -1,4 +1,4 @@
-package com.example.fitnessjournal;
+package com.example.fitnessjournal.Views;
 
 /**
  * Copyright 2016 Google Inc. All Rights Reserved.
@@ -28,6 +28,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.example.fitnessjournal.R;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -80,7 +81,7 @@ public class GoogleSignInActivity extends BaseActivity implements
         mPasswordField = findViewById(R.id.fieldPassword);
 
         //For testing
-        mEmailField.setText("w@gmail.com");
+        mEmailField.setText("w1@gmail.com");
         mPasswordField.setText("password");
 
         // Button listeners
@@ -116,11 +117,11 @@ public class GoogleSignInActivity extends BaseActivity implements
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         updateUI(currentUser);
-        if (currentUser != null) {
+        /*if (currentUser != null) {
             Intent intent = new Intent(GoogleSignInActivity.this, HomeScreenActivity.class);
             intent.putExtra(EXTRA_MESSAGE_FIREBASEID, currentUser.getUid());
             startActivity(intent);
-        }
+        }*/
     }
     // [END on_start_check_user]
 
@@ -180,7 +181,6 @@ public class GoogleSignInActivity extends BaseActivity implements
                             FirebaseUser user = mAuth.getCurrentUser();
                             updateUI(user);
                             Intent intent = new Intent(GoogleSignInActivity.this, HomeScreenActivity.class);
-                            Log.d("booty", user.getUid());
                             intent.putExtra(EXTRA_MESSAGE_FIREBASEID, user.getUid());
                             startActivity(intent);
                         } else {
