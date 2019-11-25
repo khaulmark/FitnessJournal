@@ -13,4 +13,6 @@
     <dimen name="home_button_top_margin">6dp</dimen>
 
     <dimen name="workout_set_frag_width">47dp</dimen>
+
+    <dimen name="workout_set_frag_width_2">42dp</dimen>
 </resources>

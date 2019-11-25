@@ -45,7 +45,7 @@
 
         <EditText
             android:id="@+id/exercise1_sets_edittext"
-            android:layout_width="@dimen/workout_set_frag_width"
+            android:layout_width="@dimen/workout_set_frag_width_2"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:layout_toEndOf="@id/exercise1_sets_textview"
@@ -78,7 +78,7 @@
 
         <EditText
             android:id="@+id/exercise1_reps_edittext"
-            android:layout_width="@dimen/workout_set_frag_width"
+            android:layout_width="@dimen/workout_set_frag_width_2"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:layout_toEndOf="@id/exercise1_reps_textview"
@@ -111,7 +111,7 @@
 
         <EditText
             android:id="@+id/exercise1_weight_edittext"
-            android:layout_width="@dimen/workout_set_frag_width"
+            android:layout_width="@dimen/workout_set_frag_width_2"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:layout_toEndOf="@id/exercise1_weight_textview"
@@ -166,7 +166,7 @@
 
         <EditText
             android:id="@+id/exercise3_sets_edittext"
-            android:layout_width="@dimen/workout_set_frag_width"
+            android:layout_width="@dimen/workout_set_frag_width_2"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:layout_toEndOf="@id/exercise3_sets_textview"
@@ -199,7 +199,7 @@
 
         <EditText
             android:id="@+id/exercise3_reps_edittext"
-            android:layout_width="@dimen/workout_set_frag_width"
+            android:layout_width="@dimen/workout_set_frag_width_2"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:layout_toEndOf="@id/exercise3_reps_textview"
@@ -232,7 +232,7 @@
 
         <EditText
             android:id="@+id/exercise3_weight_edittext"
-            android:layout_width="@dimen/workout_set_frag_width"
+            android:layout_width="@dimen/workout_set_frag_width_2"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:layout_toEndOf="@id/exercise3_weight_textview"
@@ -287,7 +287,7 @@
 
         <EditText
             android:id="@+id/exercise2_sets_edittext"
-            android:layout_width="@dimen/workout_set_frag_width"
+            android:layout_width="@dimen/workout_set_frag_width_2"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:layout_toEndOf="@id/exercise2_sets_textview"
@@ -320,7 +320,7 @@
 
         <EditText
             android:id="@+id/exercise2_reps_edittext"
-            android:layout_width="@dimen/workout_set_frag_width"
+            android:layout_width="@dimen/workout_set_frag_width_2"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:layout_toEndOf="@id/exercise2_reps_textview"

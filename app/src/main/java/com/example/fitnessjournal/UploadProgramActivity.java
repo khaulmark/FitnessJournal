@@ -2,16 +2,12 @@ package com.example.fitnessjournal;
 
 import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -21,7 +17,6 @@ import com.example.fitnessjournal.Models.JournalProvider;
 
 import java.util.ArrayList;
 
-import static com.example.fitnessjournal.GoogleSignInActivity.EXTRA_MESSAGE_FIREBASEID;
 import static com.example.fitnessjournal.HomeScreenActivity.EXTRA_MESSAGE_ID;
 
 public class UploadProgramActivity extends AppCompatActivity implements View.OnClickListener, WorkoutSetFragment.OnFragmentDoneListener {
@@ -71,7 +66,6 @@ public class UploadProgramActivity extends AppCompatActivity implements View.OnC
     @Override
     public void OnFragmentDone(String editText, int position) {
         workoutString.set(position, editText);
-
         FragmentManager fm = getSupportFragmentManager();
         for(int i = 0; i < fm.getBackStackEntryCount(); i++) {
             fm.popBackStack();
@@ -91,12 +85,12 @@ public class UploadProgramActivity extends AppCompatActivity implements View.OnC
                 for (String s : workoutString) {
                     stringBuilder.append(s + "\n");
                 }
+                Log.d("booty", "WORKOUTSTRING = " + stringBuilder.toString());
                 ContentValues myCV = new ContentValues();
                 myCV.put(JournalProvider.JOURNAL_TABLE_COL_PROGRAM, stringBuilder.toString());
                 getContentResolver().update(Uri.parse(JournalProvider.CONTENT_URI + "/" + ID), myCV, null, null);
 
-                //Error Check
-                // TODO Add a cursor to do some error checking... we want to see if the program added to db correctly
+                /*Error Check
                 String[] projection = {
                         JournalProvider.JOURNAL_TABLE_COL_ID,
                         JournalProvider.JOURNAL_TABLE_COL_PROGRAM };
@@ -106,7 +100,8 @@ public class UploadProgramActivity extends AppCompatActivity implements View.OnC
 
                 Cursor myCursor = getContentResolver().query(JournalProvider.CONTENT_URI,projection,"_ID = ?",selectionArgs,null);
                 myCursor.moveToFirst();
-                Log.d("booty", DatabaseUtils.dumpCurrentRowToString(myCursor));
+                Log.d("booty", DatabaseUtils.dumpCurrentRowToString(myCursor));*/
+                finish();
 
             default:
                 break;
