@@ -16,6 +16,7 @@ package com.example.fitnessjournal.Views;
  * limitations under the License.
  */
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -28,6 +29,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.example.fitnessjournal.Presenters.HomePresenter;
 import com.example.fitnessjournal.R;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -44,12 +46,13 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
+import static com.example.fitnessjournal.Presenters.HomePresenter.EXTRA_MESSAGE_SIGNOUT;
+
 
 /**
  * Demonstrate Firebase Authentication using a Google ID Token.
  */
-public class GoogleSignInActivity extends BaseActivity implements
-        View.OnClickListener {
+public class GoogleSignInActivity extends BaseActivity implements View.OnClickListener {
 
     private static final String TAG = "GoogleActivity";
     private static final int RC_SIGN_IN = 9001;
@@ -61,9 +64,10 @@ public class GoogleSignInActivity extends BaseActivity implements
 
     private GoogleSignInClient mGoogleSignInClient;
     private TextView mStatusTextView;
-    private TextView mDetailTextView;
     private EditText mEmailField;
     private EditText mPasswordField;
+
+    private boolean stayAtGoogle;
 
     public static final String EXTRA_MESSAGE_FIREBASEID = "com.example.fitnessjournal.firebaseid";
 
@@ -76,7 +80,6 @@ public class GoogleSignInActivity extends BaseActivity implements
 
         // Views
         mStatusTextView = findViewById(R.id.status);
-        mDetailTextView = findViewById(R.id.detail);
         mEmailField = findViewById(R.id.fieldEmail);
         mPasswordField = findViewById(R.id.fieldPassword);
 
@@ -108,20 +111,26 @@ public class GoogleSignInActivity extends BaseActivity implements
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
         // [END initialize_auth]
+
+        stayAtGoogle = false;
     }
 
     // [START on_start_check_user]
     @Override
     public void onStart() {
         super.onStart();
+
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         updateUI(currentUser);
-        /*if (currentUser != null) {
+
+        //Immediately jump to home page if current user is not null
+        if (currentUser != null && !stayAtGoogle) {
             Intent intent = new Intent(GoogleSignInActivity.this, HomeScreenActivity.class);
             intent.putExtra(EXTRA_MESSAGE_FIREBASEID, currentUser.getUid());
-            startActivity(intent);
-        }*/
+            int requestCode = 2;
+            startActivityForResult(intent, requestCode);
+        }
     }
     // [END on_start_check_user]
 
@@ -145,7 +154,8 @@ public class GoogleSignInActivity extends BaseActivity implements
                             updateUI(user);
                             Intent intent = new Intent(GoogleSignInActivity.this, HomeScreenActivity.class);
                             intent.putExtra(EXTRA_MESSAGE_FIREBASEID, user.getUid());
-                            startActivity(intent);
+                            int requestCode = 2;
+                            startActivityForResult(intent, requestCode);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "createUserWithEmail:failure", task.getException());
@@ -182,7 +192,8 @@ public class GoogleSignInActivity extends BaseActivity implements
                             updateUI(user);
                             Intent intent = new Intent(GoogleSignInActivity.this, HomeScreenActivity.class);
                             intent.putExtra(EXTRA_MESSAGE_FIREBASEID, user.getUid());
-                            startActivity(intent);
+                            int requestCode = 2;
+                            startActivityForResult(intent, requestCode);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
@@ -206,7 +217,6 @@ public class GoogleSignInActivity extends BaseActivity implements
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
@@ -220,6 +230,15 @@ public class GoogleSignInActivity extends BaseActivity implements
                 // [START_EXCLUDE]
                 updateUI(null);
                 // [END_EXCLUDE]
+            }
+        }
+        else if (requestCode == 2) {
+            String signOutOrNo = data.getStringExtra(EXTRA_MESSAGE_SIGNOUT);
+            if (signOutOrNo.equals("Yes")) {
+                signOut();
+            }
+            else {
+                stayAtGoogle = true;
             }
         }
     }
@@ -243,9 +262,9 @@ public class GoogleSignInActivity extends BaseActivity implements
                             FirebaseUser user = mAuth.getCurrentUser();
                             updateUI(user);
                             Intent intent = new Intent(GoogleSignInActivity.this, HomeScreenActivity.class);
-                            intent.putExtra(EXTRA_MESSAGE_FIREBASEID, user.getDisplayName());
-                            startActivity(intent);
-
+                            intent.putExtra(EXTRA_MESSAGE_FIREBASEID, user.getUid());
+                            int requestCode = 2;
+                            startActivityForResult(intent, requestCode);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -268,7 +287,7 @@ public class GoogleSignInActivity extends BaseActivity implements
     }
     // [END signin]
 
-    private void signOut() {
+    public void signOut() {
         // Firebase sign out
         mAuth.signOut();
 
@@ -351,11 +370,10 @@ public class GoogleSignInActivity extends BaseActivity implements
                 });
     }
 
-    private void updateUI(FirebaseUser user) {
+    public void updateUI(FirebaseUser user) {
         hideProgressDialog();
         if (user != null) {
-            // mStatusTextView.setText(getString(R.string.google_status_fmt, user.getEmail()));
-            mDetailTextView.setText(getString(R.string.firebase_status_fmt, user.getUid()));
+            mStatusTextView.setText(getString(R.string.google_status_fmt, user.getEmail()));
 
             findViewById(R.id.signInButton).setVisibility(View.GONE);
             findViewById(R.id.emailPasswordButtons).setVisibility(View.GONE);
@@ -364,12 +382,13 @@ public class GoogleSignInActivity extends BaseActivity implements
             findViewById(R.id.verifyEmailButton).setEnabled(!user.isEmailVerified());
 
             findViewById(R.id.signOutAndDisconnect).setVisibility(View.VISIBLE);
+            findViewById(R.id.verifyEmailButton).setVisibility(View.VISIBLE);
         } else {
             mStatusTextView.setText(R.string.signed_out);
-            mDetailTextView.setText(null);
 
             findViewById(R.id.signInButton).setVisibility(View.VISIBLE);
             findViewById(R.id.signOutAndDisconnect).setVisibility(View.GONE);
+            findViewById(R.id.verifyEmailButton).setVisibility(View.GONE);
             findViewById(R.id.emailPasswordButtons).setVisibility(View.VISIBLE);
             findViewById(R.id.emailPasswordFields).setVisibility(View.VISIBLE);
         }

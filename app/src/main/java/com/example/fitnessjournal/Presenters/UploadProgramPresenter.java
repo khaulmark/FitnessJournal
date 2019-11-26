@@ -62,13 +62,13 @@ public class UploadProgramPresenter implements Presenter {
         fm = view.getSupportFragmentManager();
 
         //For now, the days in the program are just the days of the week
-        workoutDays.add("Sunday");
         workoutDays.add("Monday");
         workoutDays.add("Tuesday");
         workoutDays.add("Wednesday");
         workoutDays.add("Thursday");
         workoutDays.add("Friday");
         workoutDays.add("Saturday");
+        workoutDays.add("Sunday");
         //TODO Add more days to the program and/or make it more dynamic
 
         //Each day is initialized as a Rest day

@@ -29,6 +29,10 @@
             android:name=".Views.UploadProgramActivity" android:label="Upload Program" android:parentActivityName=".Views.HomeScreenActivity">
         </activity>
 
+        <activity
+            android:name=".Views.FollowProgramActivity" android:label="Follow Program" android:parentActivityName=".Views.HomeScreenActivity">
+        </activity>
+
         <provider
             android:authorities="com.example.fitnessjournal.Models.JournalProvider"
             android:name=".Models.JournalProvider"

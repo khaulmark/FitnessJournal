@@ -37,11 +37,6 @@
             style="@style/ThemeOverlay.MyTextDetail"
             android:text="@string/signed_out" />
 
-        <TextView
-            android:id="@+id/detail"
-            style="@style/ThemeOverlay.MyTextDetail"
-            tools:text="Firebase User ID: 123456789abc" />
-
     </LinearLayout>
 
 
@@ -113,7 +108,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/emailPasswordFields"
-            android:layout_centerInParent="true"
+            android:layout_marginTop="20dp"
             android:orientation="horizontal"
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
@@ -122,7 +117,7 @@
 
             <Button
                 android:id="@+id/signOutButton"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/button_horizontal_margin"
                 android:layout_marginEnd="@dimen/button_horizontal_margin"
@@ -132,24 +127,24 @@
 
             <Button
                 android:id="@+id/disconnectButton"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/button_horizontal_margin"
                 android:layout_marginEnd="@dimen/button_horizontal_margin"
                 android:layout_weight="1"
                 android:text="@string/disconnect"
                 android:theme="@style/ThemeOverlay.MyDarkButton" />
-
-            <Button
-                android:id="@+id/verifyEmailButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/button_horizontal_margin"
-                android:layout_marginEnd="@dimen/button_horizontal_margin"
-                android:layout_weight="1.0"
-                android:text="@string/verify_email"
-                android:theme="@style/ThemeOverlay.MyDarkButton" />
         </LinearLayout>
+
+        <Button
+            android:id="@+id/verifyEmailButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:layout_below="@+id/signOutAndDisconnect"
+            android:text="@string/verify_email"
+            android:theme="@style/ThemeOverlay.MyDarkButton" />
 
         <com.google.android.gms.common.SignInButton
             android:id="@+id/signInButton"
