@@ -46,6 +46,7 @@ public class HomePresenter implements Presenter {
             ID = myCursor.getString(0);
             username = myCursor.getString(2);
             program = myCursor.getString(3);
+            Log.d("login", "ID = " + ID + " FIREBASEID = " + firebaseID + " USERNAME = " + username + " PROGRAM = " + program);
         }
         else {
             ContentValues myCV = new ContentValues();

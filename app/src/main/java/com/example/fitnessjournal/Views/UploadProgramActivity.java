@@ -44,6 +44,12 @@ public class UploadProgramActivity extends AppCompatActivity implements View.OnC
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        presenter.onResume();
+    }
+
     public RecyclerView getRecyclerView() {
         return recyclerView;
     }

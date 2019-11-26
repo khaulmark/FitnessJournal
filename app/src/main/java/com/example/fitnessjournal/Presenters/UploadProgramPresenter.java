@@ -3,6 +3,7 @@ package com.example.fitnessjournal.Presenters;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 import android.view.View;
@@ -23,17 +24,18 @@ import com.example.fitnessjournal.Views.WorkoutSetFragment;
 import java.util.ArrayList;
 
 import static com.example.fitnessjournal.Presenters.HomePresenter.EXTRA_MESSAGE_ID;
-import static com.example.fitnessjournal.Presenters.HomePresenter.EXTRA_MESSAGE_PROGRAM;
-
 
 public class UploadProgramPresenter implements Presenter {
     private UploadProgramActivity view;
     private WorkoutSetFragment fragment;
+
     private String ID;
+    private String program;
+    private int fragmentPosition;
+    private FragmentManager fm;
+
     private ArrayList<String> workoutDays = new ArrayList<>();
     private ArrayList<String> workoutString = new ArrayList<>();
-    private FragmentManager fm;
-    private int fragmentPosition;
 
     public UploadProgramPresenter(UploadProgramActivity view) {
         this.view = view;
@@ -43,7 +45,19 @@ public class UploadProgramPresenter implements Presenter {
     public void onCreate() {
         Intent intent = view.getIntent();
         ID = intent.getStringExtra(EXTRA_MESSAGE_ID);
-        String program = intent.getStringExtra(EXTRA_MESSAGE_PROGRAM);
+
+        //Query the DB to get the workout string
+        String projection[] = {
+                JournalProvider.JOURNAL_TABLE_COL_ID,
+                JournalProvider.JOURNAL_TABLE_COL_PROGRAM };
+
+        String selectionArgs[] = {ID };
+
+        Cursor myCursor = view.getContentResolver().query(JournalProvider.CONTENT_URI,projection,"_ID = ?",selectionArgs,null);
+        if (myCursor != null && myCursor.getCount() > 0){
+            myCursor.moveToFirst();
+            program = myCursor.getString(1);
+        }
 
         fm = view.getSupportFragmentManager();
 
@@ -96,17 +110,19 @@ public class UploadProgramPresenter implements Presenter {
     public void onCreateFragmentView(WorkoutSetFragment fragment) {
         this.fragment = fragment;
         String workout = workoutString.get(fragmentPosition);
+
         //Load the workoutSet string into all the EditTexts unless it contains Rest
-        if (workout.equals("Rest")) {
-            //Each exercise is split with a |
+        if (!workout.equals("Rest")) {
+
+            //Each exercise is split with a ;
             String[] workoutSplit = workout.split(";");
 
             //Each item within the exercise (sets, reps, weight) split by ,
             for (int i = 0; i < workoutSplit.length; i++) {
-                Log.d("booty", "WORKOUTSPLIT[" + i + "] = " + workoutSplit[i]);
+
                 String[] exerciseSplit = workoutSplit[i].split(",");
                 for (int j = 0; j < exerciseSplit.length; j++) {
-                    Log.d("booty", "EXERCISESPLIT[" + j + "] = " + exerciseSplit[j]);
+
                     //exerciseEditText[i][j].setText(exerciseSplit[j]);
                     fragment.setExerciseEditText(i, j, exerciseSplit[j]);
                 }
@@ -126,6 +142,7 @@ public class UploadProgramPresenter implements Presenter {
             //Add all the EditTexts to a single string
             for (int i = 0; i < exerciseEditText.length; i++) {
                 for (int j = 0; j < exerciseEditText[i].length; j++) {
+
                     //Add a semicolon to denote the separation between exercises in the string
                     if (j == 3) {
                         stringBuilder.append(exerciseEditText[i][j].getText() + ";");
@@ -134,9 +151,12 @@ public class UploadProgramPresenter implements Presenter {
                     }
                 }
             }
+
+            //Update the array list holding the workouts
             workoutString.set(fragmentPosition, stringBuilder.toString());
         }
 
+        //Remove the soft-keyboard from the screen when exiting the fragment
         InputMethodManager inputManager = (InputMethodManager) view.getSystemService(Context.INPUT_METHOD_SERVICE);
         View focusedView = view.getCurrentFocus();
 
@@ -144,6 +164,7 @@ public class UploadProgramPresenter implements Presenter {
             inputManager.hideSoftInputFromWindow(focusedView.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
 
+        //Close the fragment
         fm.popBackStack();
     }
 
