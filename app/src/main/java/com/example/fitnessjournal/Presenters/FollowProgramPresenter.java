@@ -3,6 +3,8 @@ package com.example.fitnessjournal.Presenters;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -21,9 +23,12 @@ import com.example.fitnessjournal.Views.DatePickerFragment;
 import com.example.fitnessjournal.Views.FollowProgramActivity;
 import com.example.fitnessjournal.Views.ViewWorkoutFragment;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 import static com.example.fitnessjournal.Presenters.HomePresenter.EXTRA_MESSAGE_ID;
 
@@ -31,7 +36,9 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
     private FollowProgramActivity view;
     private ViewWorkoutFragment fragment;
     private TextView[] exerciseRepsWeight = new TextView[3];
+    private String username;
     private String program;
+    private String setNumber;
     private String[][] exerciseInfo = new String[3][4];
     private int month;
     private int dayOfMonth;
@@ -51,6 +58,7 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
         //Query the DB to get the workout string
         String projection[] = {
                 JournalProvider.JOURNAL_TABLE_COL_ID,
+                JournalProvider.JOURNAL_TABLE_COL_USERNAME,
                 JournalProvider.JOURNAL_TABLE_COL_PROGRAM };
 
         String selectionArgs[] = {ID };
@@ -58,7 +66,8 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
         Cursor myCursor = view.getContentResolver().query(JournalProvider.CONTENT_URI,projection,"_ID = ?",selectionArgs,null);
         if (myCursor != null && myCursor.getCount() > 0){
             myCursor.moveToFirst();
-            program = myCursor.getString(1);
+            username = myCursor.getString(1);
+            program = myCursor.getString(2);
         }
 
         fm = view.getSupportFragmentManager();
@@ -160,16 +169,20 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
         switch(parent.getId()) {
             case R.id.exercise1_spinner:
                 exerciseRepsWeight[0].setText(exerciseInfo[0][3] + " for " + exerciseInfo[0][2]);
+                setNumber = exerciseInfo[0][1];
                 break;
             case R.id.exercise2_spinner:
                 exerciseRepsWeight[1].setText(exerciseInfo[1][3] + " for " + exerciseInfo[1][2]);
+                setNumber = exerciseInfo[1][1];
                 break;
             case R.id.exercise3_spinner:
                 exerciseRepsWeight[2].setText(exerciseInfo[2][3] + " for " + exerciseInfo[2][2]);
+                setNumber = exerciseInfo[2][1];
                 break;
             default:
                 break;
         }
+
     }
 
     public void onNothingSelected(AdapterView<?> parent) {
@@ -181,6 +194,24 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
         //view.startActivity(intent);
 
     }
+    /*
+    private File createVideoFile(String exercise, String setNumberFilename) throws IOException {
+        //Create an image file name
+        //String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        //String imageFileName = "JPEG_" + timeStamp + "_";
+        String videoFileName = username + "_" + exercise + "_" + setNumberFilename + "_" + month + "/" + dayOfMonth;
+        File storageDir = Environment.getExternalStorageDirectory().getAbsolutePath();
+        File image = File.createTempFile(
+                videoFileName,
+                ".mp4",
+                storageDir
+        );
+
+        //Save a file: path for use with ACTION_VIEW intents
+        mCurrentPhotoPath = image.getAbsolutePath();
+        Log.d("booty", mCurrentPhotoPath.toString());
+        return image;
+    }*/
 
     @Override
     public void onResume() {
