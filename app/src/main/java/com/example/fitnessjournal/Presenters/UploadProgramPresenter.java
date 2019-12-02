@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -85,7 +84,7 @@ public class UploadProgramPresenter implements Presenter {
                 new MyAdapter.OnMyAdapterItemClickListener() {
                     @Override
                     public void onItemClicked(int position) {
-                        FragmentTransaction ft = view.getSupportFragmentManager().beginTransaction();
+                        FragmentTransaction ft = fm.beginTransaction();
                         ft.replace(R.id.placeholder, new WorkoutSetFragment(presenter));
                         fragmentPosition = position;
                         //Clears other fragment from BackStack before adding new fragment
@@ -107,7 +106,7 @@ public class UploadProgramPresenter implements Presenter {
         }
     }
 
-    public void onCreateFragmentView(WorkoutSetFragment fragment) {
+    public void onFragmentCreated(WorkoutSetFragment fragment) {
         this.fragment = fragment;
         String workout = workoutString.get(fragmentPosition);
 
@@ -122,7 +121,6 @@ public class UploadProgramPresenter implements Presenter {
 
                 String[] exerciseSplit = workoutSplit[i].split(",");
                 for (int j = 0; j < exerciseSplit.length; j++) {
-
                     //exerciseEditText[i][j].setText(exerciseSplit[j]);
                     fragment.setExerciseEditText(i, j, exerciseSplit[j]);
                 }

@@ -52,7 +52,7 @@ public class WorkoutSetFragment extends Fragment implements View.OnClickListener
         saveButton.setOnClickListener(this);
         discardButton.setOnClickListener(this);
 
-        presenter.onCreateFragmentView(this);
+        presenter.onFragmentCreated(this);
         return rootView;
     }
 

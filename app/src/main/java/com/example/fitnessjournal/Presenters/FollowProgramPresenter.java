@@ -3,14 +3,23 @@ package com.example.fitnessjournal.Presenters;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.database.Cursor;
-import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.fitnessjournal.Models.JournalProvider;
+import com.example.fitnessjournal.R;
 import com.example.fitnessjournal.Views.DatePickerFragment;
 import com.example.fitnessjournal.Views.FollowProgramActivity;
+import com.example.fitnessjournal.Views.ViewWorkoutFragment;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -18,14 +27,17 @@ import java.util.Calendar;
 
 import static com.example.fitnessjournal.Presenters.HomePresenter.EXTRA_MESSAGE_ID;
 
-public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDateSetListener {
+public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDateSetListener, AdapterView.OnItemSelectedListener {
     private FollowProgramActivity view;
-
-    private String ID;
+    private ViewWorkoutFragment fragment;
+    private TextView[] exerciseRepsWeight = new TextView[3];
     private String program;
+    private String[][] exerciseInfo = new String[3][4];
     private int month;
     private int dayOfMonth;
     private int dayOfWeek;
+    private FragmentManager fm;
+
 
     public FollowProgramPresenter(FollowProgramActivity view) {
         this.view = view;
@@ -34,7 +46,7 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
     @Override
     public void onCreate() {
         Intent intent = view.getIntent();
-        ID = intent.getStringExtra(EXTRA_MESSAGE_ID);
+        String ID = intent.getStringExtra(EXTRA_MESSAGE_ID);
 
         //Query the DB to get the workout string
         String projection[] = {
@@ -48,17 +60,26 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
             myCursor.moveToFirst();
             program = myCursor.getString(1);
         }
+
+        fm = view.getSupportFragmentManager();
     }
 
     public void goToTodaysWorkout() {
-        Calendar cal = Calendar.getInstance();
-        parseDate(cal);
+        if (!program.equals("None")) {
+            Calendar cal = Calendar.getInstance();
+            parseDate(cal);
+            loadFragment();
+        }
+        else {
+            Toast.makeText(view, "No program uploaded!", Toast.LENGTH_LONG).show();
+        }
     }
 
     public void goToPreviousWorkout() {
         //Opens the calendar dialog and sets the date for the alarm
         DialogFragment datePicker = new DatePickerFragment(this);
         datePicker.show(view.getSupportFragmentManager(), "date picker");
+        //loadFragment();
     }
 
     //Date from calendar dialog is sent here
@@ -67,6 +88,7 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
         Calendar cal = Calendar.getInstance();
         cal.set(year, month, day);
         parseDate(cal);
+        loadFragment();
     }
 
     private void parseDate(Calendar cal) {
@@ -77,6 +99,87 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
         dayOfWeek = Integer.parseInt(dateSplit[0]);
         dayOfMonth = Integer.parseInt(dateSplit[1]);
         month = Integer.parseInt(dateSplit[2]);
+    }
+
+    public void onFragmentCreated(ViewWorkoutFragment fragment) {
+        this.fragment = fragment;
+
+        String[] workouts = program.split("\n");
+        String currentWorkout = workouts[dayOfWeek-1];
+
+        if (!currentWorkout.equals("Rest")) {
+            String[] exercises = currentWorkout.split(";");
+            Spinner[] spinners = fragment.getSpinners();
+            TextView[] exerciseTitleTextViews = fragment.getTitleTextViews();
+            exerciseRepsWeight = fragment.getRepsWeightTextViews();
+
+            exerciseInfo[0] = exercises[0].split(",");
+            exerciseInfo[1] = exercises[1].split(",");
+            exerciseInfo[2] = exercises[2].split(",");
+
+            for (int i = 0; i < exercises.length; i++) {
+                //String[] exerciseInfo = exercises[i].split(",");
+                int setNumber = Integer.parseInt(exerciseInfo[i][1]);
+                String[] items = new String[setNumber];
+                for (int j = 0; j < setNumber; j++) {
+                    items[j] = String.valueOf(j + 1);
+                }
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(view, R.layout.spinner_text, items);
+                adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown);
+                spinners[i].setAdapter(adapter);
+                exerciseTitleTextViews[i].setText(exerciseInfo[i][0]);
+            }
+
+            fragment.restUI(false);
+        }
+        else {
+            fragment.restUI(true);
+        }
+    }
+
+    public void loadFragment() {
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.replace(R.id.placeholder_follow, new ViewWorkoutFragment(this));
+
+        //Clears other fragment from BackStack before adding new fragment
+        fm.popBackStack();
+        ft.addToBackStack(null);
+        ft.commit();
+    }
+
+    public void onItemSelected(AdapterView<?> parent, View view,
+                               int pos, long id) {
+        // An item was selected. You can retrieve the selected item using
+        // parent.getItemAtPosition(pos)
+
+        //TODO Eventually add a way for user to enter different weight/reps for each set
+
+        //exerciseRepsWeight.setText(exercise1Info[3] + " for " + exercise1Info[2]);
+        //Log.d("booty", "ID_ONITEMSELECTED = " + id + " POS = " + pos + " PARENTID = " + parent.getId());
+
+        switch(parent.getId()) {
+            case R.id.exercise1_spinner:
+                exerciseRepsWeight[0].setText(exerciseInfo[0][3] + " for " + exerciseInfo[0][2]);
+                break;
+            case R.id.exercise2_spinner:
+                exerciseRepsWeight[1].setText(exerciseInfo[1][3] + " for " + exerciseInfo[1][2]);
+                break;
+            case R.id.exercise3_spinner:
+                exerciseRepsWeight[2].setText(exerciseInfo[2][3] + " for " + exerciseInfo[2][2]);
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void onNothingSelected(AdapterView<?> parent) {
+        // Another interface callback
+    }
+
+    public void addVideo() {
+        //Intent intent = new Intent(view, VideoCapture.class);
+        //view.startActivity(intent);
+
     }
 
     @Override

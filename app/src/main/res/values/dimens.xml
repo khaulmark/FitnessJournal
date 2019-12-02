@@ -13,7 +13,9 @@
     <dimen name="home_button_height">85dp</dimen>
     <dimen name="home_button_top_margin">6dp</dimen>
 
+    <dimen name="follow_button_height">60dp</dimen>
+
     <dimen name="workout_set_frag_width">47dp</dimen>
 
-    <dimen name="workout_set_frag_width_2">42dp</dimen>
+    <dimen name="workout_set_frag_width_2">30dp</dimen>
 </resources>
