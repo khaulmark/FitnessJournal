@@ -1,7 +1,6 @@
 package com.example.fitnessjournal.Views;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -20,7 +19,6 @@ public class FollowProgramActivity extends AppCompatActivity implements View.OnC
 
     private boolean datePicker;
 
-    static final int REQUEST_VIDEO_CAPTURE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,9 +66,9 @@ public class FollowProgramActivity extends AppCompatActivity implements View.OnC
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
-        if (requestCode == REQUEST_VIDEO_CAPTURE && resultCode == RESULT_OK) {
+        /*if (requestCode == REQUEST_VIDEO_CAPTURE && resultCode == RESULT_OK) {
             Uri videoUri = intent.getData();
             videoView.setVideoURI(videoUri);
-        }
+        }*/
     }
 }

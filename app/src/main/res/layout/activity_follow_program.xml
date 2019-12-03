@@ -9,6 +9,12 @@
     android:orientation="vertical"
     android:weightSum="4">
 
+    <FrameLayout
+        android:id="@+id/placeholder_view_video"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+    </FrameLayout>
+
     <Button
         android:id="@+id/btn_date_picker"
         android:layout_width="match_parent"

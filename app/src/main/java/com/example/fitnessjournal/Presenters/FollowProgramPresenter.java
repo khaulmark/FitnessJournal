@@ -3,7 +3,9 @@ package com.example.fitnessjournal.Presenters;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -13,6 +15,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -28,7 +31,6 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 
 import static com.example.fitnessjournal.Presenters.HomePresenter.EXTRA_MESSAGE_ID;
 
@@ -44,6 +46,9 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
     private int dayOfMonth;
     private int dayOfWeek;
     private FragmentManager fm;
+    private String currentVideoPath;
+
+    static final int REQUEST_VIDEO_CAPTURE = 1;
 
 
     public FollowProgramPresenter(FollowProgramActivity view) {
@@ -189,29 +194,43 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
         // Another interface callback
     }
 
-    public void addVideo() {
-        //Intent intent = new Intent(view, VideoCapture.class);
-        //view.startActivity(intent);
-
+    public void addVideo(String exercise, String setNumberFilename) {
+        Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+        //Ensure that there's a camera activity to handle the intent
+        if (takeVideoIntent.resolveActivity(view.getPackageManager()) != null) {
+            //Create a file where the photo should go
+            File videoFile = null;
+            try {
+                videoFile = createVideoFile(exercise, setNumberFilename);
+            } catch (IOException ex) {
+                //Error occurred while creating the file
+            }
+            //Continue only if the file was successfully created
+            if (videoFile != null) {
+                Uri videoURI = FileProvider.getUriForFile(view, "com.example.fitnessjournal.android.fileprovider", videoFile);
+                takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, videoURI);
+                view.startActivityForResult(takeVideoIntent, REQUEST_VIDEO_CAPTURE);
+            }
+        }
     }
-    /*
+
     private File createVideoFile(String exercise, String setNumberFilename) throws IOException {
         //Create an image file name
         //String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         //String imageFileName = "JPEG_" + timeStamp + "_";
         String videoFileName = username + "_" + exercise + "_" + setNumberFilename + "_" + month + "/" + dayOfMonth;
-        File storageDir = Environment.getExternalStorageDirectory().getAbsolutePath();
-        File image = File.createTempFile(
+        File storageDir = view.getExternalFilesDir(Environment.DIRECTORY_MOVIES);
+        File video = File.createTempFile(
                 videoFileName,
                 ".mp4",
                 storageDir
         );
 
         //Save a file: path for use with ACTION_VIEW intents
-        mCurrentPhotoPath = image.getAbsolutePath();
-        Log.d("booty", mCurrentPhotoPath.toString());
-        return image;
-    }*/
+        currentVideoPath = video.getAbsolutePath();
+        Log.d("booty", currentVideoPath.toString());
+        return video;
+    }
 
     @Override
     public void onResume() {

@@ -1,8 +1,6 @@
 package com.example.fitnessjournal.Views;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,8 +12,6 @@ import androidx.fragment.app.Fragment;
 
 import com.example.fitnessjournal.Presenters.FollowProgramPresenter;
 import com.example.fitnessjournal.R;
-
-import static com.example.fitnessjournal.Views.FollowProgramActivity.REQUEST_VIDEO_CAPTURE;
 
 
 public class ViewWorkoutFragment extends Fragment implements View.OnClickListener {
@@ -69,10 +65,7 @@ public class ViewWorkoutFragment extends Fragment implements View.OnClickListene
     public void onClick(View v){
         switch (v.getId()){
             case R.id.exercise1_add_video:
-                Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-                if (takeVideoIntent.resolveActivity(getActivity().getPackageManager()) != null) {
-                    getActivity().startActivityForResult(takeVideoIntent, REQUEST_VIDEO_CAPTURE);
-                }
+                presenter.addVideo();
             default:
                 break;
         }
