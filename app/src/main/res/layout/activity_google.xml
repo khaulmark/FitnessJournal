@@ -17,19 +17,22 @@
         android:orientation="vertical">
 
         <ImageView
-            style="@style/ThemeOverlay.FirebaseIcon"
             android:id="@+id/googleIcon"
+            style="@style/ThemeOverlay.FirebaseIcon"
+            android:layout_width="200dp"
+            android:layout_height="131dp"
             android:contentDescription="@string/desc_firebase_lockup"
-            android:src="@drawable/journal_logo_small"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:src="@drawable/journal_logo_small" />
 
         <TextView
             android:id="@+id/titleText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/title_bottom_margin"
+            android:fontFamily="@font/galindo"
             android:text="@string/google_title_text"
+            android:textAllCaps="true"
+            android:textColor="@color/colorAccent"
             android:theme="@style/ThemeOverlay.MyTitleText" />
 
         <TextView

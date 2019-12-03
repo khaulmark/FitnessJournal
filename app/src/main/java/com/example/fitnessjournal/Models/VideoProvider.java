@@ -33,6 +33,7 @@ public class VideoProvider extends ContentProvider {
     public static final String VIDEO_TABLE_COL_DATE = "DATE";
     public static final String VIDEO_TABLE_COL_EXERCISE = "EXERCISE";
     public static final String VIDEO_TABLE_COL_SETNUMBER = "SETNUMBER";
+    public static final String VIDEO_TABLE_COL_FAVORITE = "FAVORITE";
 
     //Table create string based on column names
     private static final String SQL_CREATE_MAIN = "CREATE TABLE " +
@@ -43,7 +44,8 @@ public class VideoProvider extends ContentProvider {
             VIDEO_TABLE_COL_FILENAME + " TEXT, " +
             VIDEO_TABLE_COL_DATE + " TEXT, " +
             VIDEO_TABLE_COL_EXERCISE + " TEXT, " +
-            VIDEO_TABLE_COL_SETNUMBER + " TEXT) ";
+            VIDEO_TABLE_COL_SETNUMBER + " TEXT, " +
+            VIDEO_TABLE_COL_FAVORITE + " TEXT) ";
 
     //URI Matcher object to facilitate switch cases between URIs
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -63,6 +65,8 @@ public class VideoProvider extends ContentProvider {
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         switch (sUriMatcher.match(uri)){
             //Match on URI with ID
+            case 1:
+                break;
             case 2:
                 String id = uri.getPathSegments().get(1);
                 selection = VIDEO_TABLE_COL_ID + "=" + id +
@@ -194,8 +198,8 @@ public class VideoProvider extends ContentProvider {
          */
 
         MainDatabaseHelper(Context context) {
-            super(context, DBNAME, null, 3);
-            //onUpgrade(getReadableDatabase(), 0, 3);
+            super(context, DBNAME, null, 5);
+            //onUpgrade(getReadableDatabase(), 0, 4);
         }
 
         /*

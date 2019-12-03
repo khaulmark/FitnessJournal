@@ -4,7 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.VideoView;
+import android.view.WindowManager;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -15,21 +15,16 @@ public class FollowProgramActivity extends AppCompatActivity implements View.OnC
 
     protected FollowProgramPresenter presenter;
 
-    private VideoView videoView;
-
-    private boolean datePicker;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_follow_program);
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
         //No back button in ActionBar
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
         initializeComponents();
-        datePicker = false;
 
         //Create a new FollowProgramPresenter for FollowProgramActivity
         presenter = new FollowProgramPresenter(this);
@@ -47,7 +42,6 @@ public class FollowProgramActivity extends AppCompatActivity implements View.OnC
         switch (v.getId()){
             case R.id.btn_date_picker:
                 presenter.goToPreviousWorkout();
-                datePicker = true;
                 break;
             case R.id.btn_todays_workout:
                 presenter.goToTodaysWorkout();
@@ -55,12 +49,6 @@ public class FollowProgramActivity extends AppCompatActivity implements View.OnC
             default:
                 break;
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d("booty", "ONRESUME RUNS");
     }
 
     @Override

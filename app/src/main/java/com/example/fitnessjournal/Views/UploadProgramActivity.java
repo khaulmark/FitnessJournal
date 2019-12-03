@@ -2,6 +2,8 @@ package com.example.fitnessjournal.Views;
 
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.fitnessjournal.Presenters.UploadProgramPresenter;
@@ -18,6 +20,7 @@ public class UploadProgramActivity extends AppCompatActivity implements View.OnC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_upload_program);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         //This recycler view defines the list of program days in the program
         recyclerView = (RecyclerView) findViewById(R.id.dayList);

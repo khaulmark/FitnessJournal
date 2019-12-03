@@ -14,7 +14,7 @@ import com.example.fitnessjournal.Presenters.FollowProgramPresenter;
 import com.example.fitnessjournal.R;
 
 
-public class ViewWorkoutFragment extends Fragment implements View.OnClickListener {
+public class ViewOldWorkoutFragment extends Fragment implements View.OnClickListener {
 
     //Presenter for UploadProgramActivity
     private FollowProgramPresenter presenter;
@@ -25,7 +25,7 @@ public class ViewWorkoutFragment extends Fragment implements View.OnClickListene
     private TextView[] exerciseTitle = new TextView[3];
     private TextView[] exerciseRepsWeight = new TextView[3];
 
-    public ViewWorkoutFragment(FollowProgramPresenter presenter) {
+    public ViewOldWorkoutFragment(FollowProgramPresenter presenter) {
         this.presenter = presenter;
     }
 
@@ -70,7 +70,7 @@ public class ViewWorkoutFragment extends Fragment implements View.OnClickListene
             viewVideo[i].setOnClickListener(this);
         }
 
-        presenter.onViewWorkoutFragmentCreated(this);
+        //presenter.onViewOldWorkoutFragmentCreated(this);
         return rootView;
     }
 

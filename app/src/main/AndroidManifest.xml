@@ -5,9 +5,9 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera" android:required="true" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
 
     <application
         android:allowBackup="true"
@@ -18,7 +18,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".Views.GoogleSignInActivity" android:label="Sign-In">
+            android:name=".Views.GoogleSignInActivity" android:label="Video Fitness Journal">
                 <intent-filter>
                     <action android:name="android.intent.action.MAIN" />
                     <category android:name="android.intent.category.LAUNCHER" />
@@ -51,6 +51,17 @@
             android:name=".Models.VideoProvider"
             android:enabled="true"
             android:exported="true" />
+
+        <provider
+            android:authorities="com.example.fitnessjournal.android.fileprovider"
+            android:name="androidx.core.content.FileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true" >
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths">
+            </meta-data>
+        </provider>
 
         <meta-data
             android:name="preloaded_fonts"
