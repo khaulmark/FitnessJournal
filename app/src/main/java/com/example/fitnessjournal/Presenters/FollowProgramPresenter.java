@@ -51,7 +51,6 @@ import static com.example.fitnessjournal.Presenters.HomePresenter.EXTRA_MESSAGE_
 public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDateSetListener, AdapterView.OnItemSelectedListener {
     private FollowProgramActivity view;
     private ViewWorkoutFragment fragment;
-    private ViewOldWorkoutFragment fragmentOldWorkout;
     private TextView[] exerciseRepsWeight = new TextView[3];
     private String firebaseID;
     private String program;
@@ -61,6 +60,8 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
     private String date;
     private FragmentManager fm;
     private String currentVideoPath;
+    private String oldSetNumbers;
+    private String oldExercises;
 
     static final int REQUEST_VIDEO_CAPTURE = 1;
     static final String EXTRA_EXERCISE_NUMBER = "com.example.fitnessjournal.Presenter.FollowProgramPresenter.EXTRA_EXERCISE_NUMBER";
@@ -97,7 +98,7 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
         if (!program.equals("None")) {
             Calendar cal = Calendar.getInstance();
             parseDate(cal);
-            loadViewWorkoutFragment();
+            loadFragment(true);
         }
         else {
             Toast.makeText(view, "No program uploaded!", Toast.LENGTH_LONG).show();
@@ -131,29 +132,33 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
         Cursor myCursor = view.getContentResolver().query(VideoProvider.CONTENT_URI,projection,"FIREBASE_ID = ? AND DATE = ?",selectionArgs,null);
 
         if (myCursor != null && myCursor.getCount() > 0) {
-            //loadViewOldWorkoutFragment();
-
-            ArrayList<String> oldExercises = new ArrayList<>();
-            ArrayList<String> oldSetNumbers = new ArrayList<>();
             myCursor.moveToFirst();
-            oldExercises.add(myCursor.getString(4));
+            ArrayList<String> oldExercisesTemp = new ArrayList<>();
+            StringBuilder oldSetNumbersTemp = new StringBuilder();
+
+            oldExercisesTemp.add(myCursor.getString(4));
 
             for (myCursor.moveToNext(); !myCursor.isAfterLast(); myCursor.moveToNext()) {
-                for (String s : oldExercises) {
+                for (String s : oldExercisesTemp) {
                     if (!myCursor.getString(4).equals(s)) {
-                        oldExercises.add(myCursor.getString(4));
+                        oldExercisesTemp.add(myCursor.getString(4));
                     }
                 }
             }
-            for (String s : oldExercises) {
-                    ArrayList<String> setNumber = new ArrayList<>();
+            oldExercises = android.text.TextUtils.join(";", oldExercisesTemp);
+            ArrayList<String> tempList = new ArrayList<>();
+            for (String s : oldExercisesTemp) {
+                    tempList.clear();
                     for (myCursor.moveToFirst(); !myCursor.isAfterLast(); myCursor.moveToNext()) {
                         if (myCursor.getString(4).equals(s)) {
-                            setNumber.add(myCursor.getString(5));
+                            tempList.add(myCursor.getString(5));
                         }
                     }
-                    oldSetNumbers.add(setNumber.toString());
+                    String temp = android.text.TextUtils.join(",", tempList);
+                    oldSetNumbersTemp.append(temp + ";");
             }
+            oldSetNumbers = oldSetNumbersTemp.toString();
+            loadFragment(false);
         }
         else {
             Toast.makeText(view, "No videos recorded for that day.", Toast.LENGTH_LONG).show();
@@ -205,55 +210,43 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
         }
     }
 
-    public void onViewOldWorkoutFragmentCreated(ViewOldWorkoutFragment fragment) {
-        this.fragmentOldWorkout = fragment;
+    public void onViewOldWorkoutFragmentCreated(ViewWorkoutFragment fragment) {
+        this.fragment = fragment;
 
-        String[] workouts = program.split("\n");
-        String currentWorkout = workouts[dayOfWeek];
+        //String[] workouts = program.split("\n");
+        //String currentWorkout = workouts[dayOfWeek];
 
-        if (!currentWorkout.equals("Rest")) {
-            String[] exercises = currentWorkout.split(";");
-            Spinner[] spinners = fragment.getSpinners();
-            TextView[] exerciseTitleTextViews = fragment.getTitleTextViews();
-            exerciseRepsWeight = fragment.getRepsWeightTextViews();
 
-            exerciseInfo[0] = exercises[0].split(",");
-            exerciseInfo[1] = exercises[1].split(",");
-            exerciseInfo[2] = exercises[2].split(",");
+        String[] exercises = currentWorkout.split(";");
+        Spinner[] spinners = fragment.getSpinners();
+        TextView[] exerciseTitleTextViews = fragment.getTitleTextViews();
+        exerciseRepsWeight = fragment.getRepsWeightTextViews();
 
-            for (int i = 0; i < exercises.length; i++) {
-                //String[] exerciseInfo = exercises[i].split(",");
-                int setNumber = Integer.parseInt(exerciseInfo[i][1]);
-                String[] items = new String[setNumber];
-                for (int j = 0; j < setNumber; j++) {
-                    items[j] = String.valueOf(j + 1);
-                }
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(view, R.layout.spinner_text, items);
-                adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown);
-                spinners[i].setAdapter(adapter);
-                exerciseTitleTextViews[i].setText(exerciseInfo[i][0]);
+        exerciseInfo[0] = exercises[0].split(",");
+        exerciseInfo[1] = exercises[1].split(",");
+        exerciseInfo[2] = exercises[2].split(",");
+
+        for (int i = 0; i < exercises.length; i++) {
+            //String[] exerciseInfo = exercises[i].split(",");
+            int setNumber = Integer.parseInt(exerciseInfo[i][1]);
+            String[] items = new String[setNumber];
+            for (int j = 0; j < setNumber; j++) {
+                items[j] = String.valueOf(j + 1);
             }
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(view, R.layout.spinner_text, items);
+            adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown);
+            spinners[i].setAdapter(adapter);
+            exerciseTitleTextViews[i].setText(exerciseInfo[i][0]);
+        }
 
-            fragment.restUI(false);
-        }
-        else {
-            fragment.restUI(true);
-        }
+        fragment.restUI(false);
     }
 
-    public void loadViewWorkoutFragment() {
-        FragmentTransaction ft = fm.beginTransaction();
-        ft.replace(R.id.placeholder_follow, new ViewWorkoutFragment(this));
 
-        //Clears other fragment from BackStack before adding new fragment
-        fm.popBackStack();
-        ft.addToBackStack(null);
-        ft.commit();
-    }
 
-    public void loadViewOldWorkoutFragment() {
+    public void loadFragment(boolean todayOrOld) {
         FragmentTransaction ft = fm.beginTransaction();
-        ft.replace(R.id.placeholder_follow, new ViewOldWorkoutFragment(this));
+        ft.replace(R.id.placeholder_follow, new ViewWorkoutFragment(this, todayOrOld));
 
         //Clears other fragment from BackStack before adding new fragment
         fm.popBackStack();

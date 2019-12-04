@@ -18,6 +18,7 @@ public class ViewWorkoutFragment extends Fragment implements View.OnClickListene
 
     //Presenter for UploadProgramActivity
     private FollowProgramPresenter presenter;
+    private boolean todayOrOld;
 
     View rootView;
 
@@ -25,8 +26,9 @@ public class ViewWorkoutFragment extends Fragment implements View.OnClickListene
     private TextView[] exerciseTitle = new TextView[3];
     private TextView[] exerciseRepsWeight = new TextView[3];
 
-    public ViewWorkoutFragment(FollowProgramPresenter presenter) {
+    public ViewWorkoutFragment(FollowProgramPresenter presenter, boolean todayOrOld) {
         this.presenter = presenter;
+        this.todayOrOld = todayOrOld;
     }
 
     @Override
@@ -70,7 +72,12 @@ public class ViewWorkoutFragment extends Fragment implements View.OnClickListene
             viewVideo[i].setOnClickListener(this);
         }
 
-        presenter.onViewWorkoutFragmentCreated(this);
+        if (todayOrOld) {
+            presenter.onViewWorkoutFragmentCreated(this);
+        }
+        else {
+            presenter.onViewOldWorkoutFragmentCreated(this);
+        }
         return rootView;
     }
 
