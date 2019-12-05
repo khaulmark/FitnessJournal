@@ -194,6 +194,7 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
         }
     }
 
+    //Gets the current date and sets the date string
     private void parseDate(Calendar cal) {
         DateFormat df = new SimpleDateFormat("u d MM");
         String temp = df.format(cal.getTime());
@@ -203,10 +204,12 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
         date = dateSplit[2] + "/" + dateSplit[1];
     }
 
+    //Called by ViewWorkoutFragment for TodaysWorkout
     public void onViewWorkoutFragmentCreated(ViewWorkoutFragment fragment) {
         this.fragment = fragment;
         todayOrOld = true;
 
+        //Parses the program string from the DB to set the fields in the layout
         String[] workouts = program.split("\n");
         String currentWorkout = workouts[dayOfWeek];
 
@@ -220,19 +223,24 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
             exerciseInfo[1] = exercises[1].split(",");
             exerciseInfo[2] = exercises[2].split(",");
 
+            //Sets the adapters for the spinners in the fragment
             for (int i = 0; i < exercises.length; i++) {
-                //String[] exerciseInfo = exercises[i].split(",");
                 int setNumber = Integer.parseInt(exerciseInfo[i][1]);
                 String[] items = new String[setNumber];
+
+                //The spinner shows each set up to the number of the sets for the exercise
                 for (int j = 0; j < setNumber; j++) {
                     items[j] = String.valueOf(j + 1);
                 }
                 ArrayAdapter<String> adapter = new ArrayAdapter<>(view, R.layout.spinner_text, items);
                 adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown);
                 spinners[i].setAdapter(adapter);
+
+                //Sets the title of the exercises
                 exerciseTitleTextViews[i].setText(exerciseInfo[i][0]);
             }
 
+            //Sets the UI to be the rest UI or not
             fragment.restUI(false);
         }
         else {
@@ -240,10 +248,12 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
         }
     }
 
+    //Called by ViewWorkoutFragment for ViewOldWOrkout
     public void onViewOldWorkoutFragmentCreated(ViewWorkoutFragment fragment) {
         this.fragment = fragment;
         todayOrOld = false;
 
+        //Uses the strings set by onDateSet to fill out layout fields
         String[] exercises = oldExercises.split(";");
         numOldExercises = exercises.length;
 
@@ -253,6 +263,7 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
 
         String[] setInfo = oldSetNumbers.split(";");
 
+        //Sets the adapters for the spinners in the fragment
         for (int i = 0; i < numOldExercises; i++) {
             String[] items = setInfo[i].split(",");
             ArrayAdapter<String> adapter = new ArrayAdapter<>(view, R.layout.spinner_text, items);
@@ -260,9 +271,12 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
             spinners[i].setAdapter(adapter);
             exerciseTitleTextViews[i].setText(exercises[i]);
         }
+
+        //Only show exercises that have videos attached
         fragment.hideLayouts(numOldExercises);
     }
 
+    //Starts the ViewWorkout fragment
     private void loadFragment(boolean todayOrOld) {
         FragmentTransaction ft = fm.beginTransaction();
         ft.replace(R.id.placeholder_follow, new ViewWorkoutFragment(this, todayOrOld));
@@ -273,6 +287,7 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
         ft.commit();
     }
 
+    //Runs when spinner item is selected via dropdown
     public void onItemSelected(AdapterView<?> parent, View view,
                                int pos, long id) {
         // An item was selected. You can retrieve the selected item using
@@ -280,6 +295,7 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
 
         //TODO Eventually add a way for user to enter different weight/reps for each set
 
+        //Runs when TodaysWorkout is selected... set number is just equal to the position of the spinner item
         if (todayOrOld) {
             switch (parent.getId()) {
                 case R.id.exercise1_spinner:
@@ -298,6 +314,7 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
                     break;
             }
         }
+        //Runs when ViewOldWorkouts is selected.. set number must be equal to the proper set of the video
         else {
             String[] repsWeightInfo = oldRepsWeight.split(";");
             String[] setInfo = oldSetNumbers.split(";");
@@ -310,6 +327,7 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
                     String[] items1 = setInfo[0].split(",");
                     setNumber[0] = items1[pos];
                     break;
+                //Only runs when 2 or more exercises have videos attached
                 case R.id.exercise2_spinner:
                     if (numOldExercises > 1) {
                         String[] temp2 = repsWeightInfo[1].split(",");
@@ -319,8 +337,9 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
                         setNumber[1] = items2[pos];
                     }
                     break;
+                //Only runs when 3 or more exercises have videos attached
                 case R.id.exercise3_spinner:
-                    if (numOldExercises > 1) {
+                    if (numOldExercises > 2) {
                         String[] temp3 = repsWeightInfo[2].split(",");
                         exerciseRepsWeight[2].setText(temp3[pos]);
 
@@ -338,6 +357,7 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
         // Another interface callback
     }
 
+    //Runs when the user clicks the Add button in ViewWorkout fragment during after TodaysWorkout
     public void addVideo(final int exercise) {
         String[] projection = {
                 VideoProvider.VIDEO_TABLE_COL_ID,
@@ -348,23 +368,30 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
                 VideoProvider.VIDEO_TABLE_COL_SETNUMBER };
 
         final String selectionArgs[] = { firebaseID, date, exerciseInfo[exercise][0], setNumber[exercise] };
+
+        //Video must be uniquely selected by using the FirebaseID, date, exercise name, and set number
         Cursor myCursor = view.getContentResolver().query(VideoProvider.CONTENT_URI,projection,"FIREBASE_ID = ? AND DATE = ? AND EXERCISE = ? AND SETNUMBER = ?",selectionArgs,null);
         if (myCursor.getCount() == 0) {
+            //Create and store new video
             dispatchVideoIntent(exercise);
         }
         else {
-            //Create a pop-up dialog that the user can specify the title of the item
+            //Create a pop-up dialog that the user can choose whether to overwrite the video or not
             AlertDialog.Builder builder = new AlertDialog.Builder(view);
             builder.setTitle("Video already exists! Overwrite?");
 
             builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+                    //If the user wishes to overwrite, it will delete the existing video first
                     view.getContentResolver().delete(VideoProvider.CONTENT_URI, "FIREBASE_ID = ? AND DATE = ? AND EXERCISE = ? AND SETNUMBER = ?", selectionArgs);
+
+                    //Create and store new video
                     dispatchVideoIntent(exercise);
                 }
             });
 
+            //Does nothing
             builder.setNeutralButton("NO", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -377,6 +404,7 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
         myCursor.close();
     }
 
+    //Creates a video file, stores it, and then launches the camera activity to record a video
     private void dispatchVideoIntent(int exercise) {
         Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
         //Ensure that there's a camera activity to handle the intent
@@ -384,20 +412,22 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
             //Create a file where the photo should go
             File videoFile = null;
             try {
+                //Create file and store it in video DB
                 videoFile = createVideoFile(exercise);
             } catch (IOException ex) {
                 //Error occurred while creating the file
             }
             //Continue only if the file was successfully created
             if (videoFile != null) {
+                //Launch the camera activity
                 Uri videoURI = FileProvider.getUriForFile(view, "com.example.fitnessjournal.android.fileprovider", videoFile);
-                Log.d("booty", videoURI.toString());
                 takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, videoURI);
                 view.startActivityForResult(takeVideoIntent, REQUEST_VIDEO_CAPTURE);
             }
         }
     }
 
+    //Create file for video and stores it
     private File createVideoFile(int exercise) throws IOException {
         //Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
@@ -413,6 +443,7 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
         //Save a file: path for use with ACTION_VIEW intents
         String currentVideoPath = video.getAbsolutePath();
 
+        //FirebaseID, date, exercise name, and reps/weight info must be stored with video file
         ContentValues myCV = new ContentValues();
         myCV.put(VideoProvider.VIDEO_TABLE_COL_FILENAME, currentVideoPath);
         myCV.put(VideoProvider.VIDEO_TABLE_COL_FIREBASE_ID, firebaseID);
@@ -420,6 +451,7 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
         myCV.put(VideoProvider.VIDEO_TABLE_COL_EXERCISE, exerciseInfo[exercise][0]);
         myCV.put(VideoProvider.VIDEO_TABLE_COL_REPSWEIGHT, exerciseRepsWeight[exercise].getText().toString());
 
+        //Determines which set the video belongs to.. also depends on the particular exercise name
         switch (exercise) {
             case 0:
                 myCV.put(VideoProvider.VIDEO_TABLE_COL_SETNUMBER, setNumber[0]);
@@ -438,6 +470,7 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
         return video;
     }
 
+    //Runs when user clicks View button
     public void viewVideo(int exercise, String exerciseName) {
         String[] projection = {
                 VideoProvider.VIDEO_TABLE_COL_ID,
@@ -449,25 +482,32 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
 
         String selectionArgs[] = { firebaseID, date, exerciseName, setNumber[exercise] };
 
+        //Video must be uniquely selected by using the FirebaseID, date, exercise name, and set number
         Cursor myCursor = view.getContentResolver().query(VideoProvider.CONTENT_URI,projection,"FIREBASE_ID = ? AND DATE = ? AND EXERCISE = ? AND SETNUMBER = ?",selectionArgs,null);
         if (myCursor != null && myCursor.getCount() > 0) {
             myCursor.moveToFirst();
             String videoPath = myCursor.getString(2);
 
+            //Creates a fragment, VideoViewer, that replaces the whole screen with the video.. exercise and name are passed so that it can be set as favorite
             FragmentTransaction ft = fm.beginTransaction();
             ft.replace(R.id.placeholder_view_video, new VideoViewerFragment(this, videoPath, exercise, exerciseName));
             ft.addToBackStack(null);
             ft.commit();
         }
         else {
+            //If no video exists, let the user know... it should always exist for when ViewOldWorkouts button is used
             Toast.makeText(view, "No video exists!", Toast.LENGTH_LONG).show();
         }
+        myCursor.close();
     }
 
+    //Sets the video as a favorite by updating its entry in the Video DB
     public void setFavorite(int exercise, String exerciseName) {
         String selectionArgs[] = { firebaseID, date, exerciseName, setNumber[exercise] };
         ContentValues myCV = new ContentValues();
         myCV.put(VideoProvider.VIDEO_TABLE_COL_FAVORITE, "true");
+
+        //Video must be uniquely selected by using the FirebaseID, date, exercise name, and set number
         view.getContentResolver().update(VideoProvider.CONTENT_URI, myCV, "FIREBASE_ID = ? AND DATE = ? AND EXERCISE = ? AND SETNUMBER = ?", selectionArgs);
     }
 
