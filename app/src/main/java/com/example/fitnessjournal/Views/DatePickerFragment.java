@@ -28,10 +28,6 @@ public class DatePickerFragment extends DialogFragment {
         int year = cal.get(Calendar.YEAR);
         int month = cal.get(Calendar.MONTH);
         int day = cal.get(Calendar.DAY_OF_MONTH);
-        //int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
-        //DateFormat df = new SimpleDateFormat("u d MM");
-        //String date = df.format(Calendar.getInstance().getTime());
-        //String[] dateSplit = date.split(" ");
 
         return new DatePickerDialog(getActivity(), (DatePickerDialog.OnDateSetListener) presenter, year, month, day);
     }

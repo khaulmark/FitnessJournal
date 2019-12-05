@@ -5,6 +5,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -16,15 +19,18 @@ import com.example.fitnessjournal.R;
 
 public class ViewWorkoutFragment extends Fragment implements View.OnClickListener {
 
-    //Presenter for UploadProgramActivity
     private FollowProgramPresenter presenter;
     private boolean todayOrOld;
 
-    View rootView;
-
+    //Arrays of layout components for better organization
+    private LinearLayout[] exerciseFollow = new LinearLayout[3];
+    private Button[] addVideo = new Button[3];
     private Spinner[] spinners = new Spinner[3];
     private TextView[] exerciseTitle = new TextView[3];
     private TextView[] exerciseRepsWeight = new TextView[3];
+
+    private ImageView restIcon;
+    private TextView restText;
 
     public ViewWorkoutFragment(FollowProgramPresenter presenter, boolean todayOrOld) {
         this.presenter = presenter;
@@ -38,11 +44,19 @@ public class ViewWorkoutFragment extends Fragment implements View.OnClickListene
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        rootView = inflater.inflate (R.layout.view_workout_fragment, container, false);
+        View rootView = inflater.inflate (R.layout.view_workout_fragment, container, false);
+
+        exerciseFollow[0] = (LinearLayout) rootView.findViewById(R.id.exercise1_follow);
+        exerciseFollow[1] = (LinearLayout) rootView.findViewById(R.id.exercise2_follow);
+        exerciseFollow[2] = (LinearLayout) rootView.findViewById(R.id.exercise3_follow);
+
+        restIcon = (ImageView) rootView.findViewById(R.id.restIcon);
+        restText = (TextView) rootView.findViewById(R.id.restText);
 
         spinners[0] = (Spinner) rootView.findViewById(R.id.exercise1_spinner);
         spinners[1] = (Spinner) rootView.findViewById(R.id.exercise2_spinner);
         spinners[2] = (Spinner) rootView.findViewById(R.id.exercise3_spinner);
+
         for (int i = 0; i < spinners.length; i++) {
             spinners[i].setOnItemSelectedListener(presenter);
         }
@@ -56,7 +70,6 @@ public class ViewWorkoutFragment extends Fragment implements View.OnClickListene
         exerciseTitle[2] = (TextView) rootView.findViewById(R.id.exercise3_title);
         exerciseRepsWeight[2] = (TextView) rootView.findViewById(R.id.exercise3_reps_weight);
 
-        Button[] addVideo = new Button[3];
         Button[] viewVideo = new Button[3];
 
         addVideo[0] = (Button) rootView.findViewById(R.id.exercise1_add_video);
@@ -72,6 +85,7 @@ public class ViewWorkoutFragment extends Fragment implements View.OnClickListene
             viewVideo[i].setOnClickListener(this);
         }
 
+        //Chooses which presenter method to run depending if from today or older
         if (todayOrOld) {
             presenter.onViewWorkoutFragmentCreated(this);
         }
@@ -94,13 +108,13 @@ public class ViewWorkoutFragment extends Fragment implements View.OnClickListene
                 presenter.addVideo(2);
                 break;
             case R.id.exercise1_view_video:
-                presenter.viewVideo(0);
+                presenter.viewVideo(0, exerciseTitle[0].getText().toString());
                 break;
             case R.id.exercise2_view_video:
-                presenter.viewVideo(1);
+                presenter.viewVideo(1, exerciseTitle[1].getText().toString());
                 break;
             case R.id.exercise3_view_video:
-                presenter.viewVideo(2);
+                presenter.viewVideo(2, exerciseTitle[2].getText().toString());
                 break;
             default:
                 break;
@@ -119,11 +133,37 @@ public class ViewWorkoutFragment extends Fragment implements View.OnClickListene
         return exerciseRepsWeight;
     }
 
+    //Updates the UI to show that the day's workout is a Rest day or not
     public void restUI(Boolean hide) {
-        if (hide != null) {
-
+        if (hide) {
+            exerciseFollow[0].setVisibility(View.GONE);
+            exerciseFollow[1].setVisibility(View.GONE);
+            exerciseFollow[2].setVisibility(View.GONE);
         } else {
-
+            restIcon.setVisibility(View.GONE);
+            restText.setVisibility(View.GONE);
         }
+    }
+
+    //Hides the exercises that do not contain videos when the user selects to view an older workout
+    public void hideLayouts(int numOfLayouts) {
+        switch(numOfLayouts) {
+            case 1:
+                exerciseFollow[1].setVisibility(View.GONE);
+                exerciseFollow[2].setVisibility(View.GONE);
+                break;
+            case 2:
+                exerciseFollow[2].setVisibility(View.GONE);
+                break;
+            default:
+                break;
+        }
+
+        //User does not have the ability to add a video on previous days
+        for (int i = 0; i < addVideo.length; i++) {
+            addVideo[i].setVisibility(View.GONE);
+        }
+        restIcon.setVisibility(View.GONE);
+        restText.setVisibility(View.GONE);
     }
 }

@@ -3,7 +3,6 @@ package com.example.fitnessjournal.Views;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.fitnessjournal.Presenters.UploadProgramPresenter;
@@ -12,8 +11,8 @@ import com.example.fitnessjournal.R;
 
 public class UploadProgramActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private RecyclerView recyclerView;
     protected UploadProgramPresenter presenter;
+    private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,19 +37,13 @@ public class UploadProgramActivity extends AppCompatActivity implements View.OnC
     }
 
     @Override
-    public void onClick(View v){
-        switch (v.getId()){
+    public void onClick(View v) {
+        switch (v.getId()) {
             case R.id.btn_upload_program_inner:
                 presenter.onUploadProgram();
             default:
                 break;
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        presenter.onResume();
     }
 
     public RecyclerView getRecyclerView() {

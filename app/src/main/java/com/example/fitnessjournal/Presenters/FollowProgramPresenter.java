@@ -2,42 +2,32 @@ package com.example.fitnessjournal.Presenters;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.VoiceInteractor;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-
 import com.example.fitnessjournal.Models.JournalProvider;
 import com.example.fitnessjournal.Models.VideoProvider;
 import com.example.fitnessjournal.R;
 import com.example.fitnessjournal.Views.DatePickerFragment;
 import com.example.fitnessjournal.Views.FollowProgramActivity;
 import com.example.fitnessjournal.Views.VideoViewerFragment;
-import com.example.fitnessjournal.Views.ViewOldWorkoutFragment;
 import com.example.fitnessjournal.Views.ViewWorkoutFragment;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -49,24 +39,32 @@ import java.util.Date;
 import static com.example.fitnessjournal.Presenters.HomePresenter.EXTRA_MESSAGE_ID;
 
 public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDateSetListener, AdapterView.OnItemSelectedListener {
+
     private FollowProgramActivity view;
     private ViewWorkoutFragment fragment;
-    private TextView[] exerciseRepsWeight = new TextView[3];
+    private FragmentManager fm;
+
+    //Variables used to populate layouts
     private String firebaseID;
     private String program;
-    private String[] setNumber = new String[3];
+
+    //Used for TodaysWorkout Fragment
     private String[][] exerciseInfo = new String[3][4];
     private int dayOfWeek;
-    private String date;
-    private FragmentManager fm;
-    private String currentVideoPath;
+
+    //Used for ViewOldWorkout Fragment
     private String oldSetNumbers;
     private String oldRepsWeight;
     private String oldExercises;
+    private int numOldExercises;
+
+    //Used for both
+    private String[] setNumber = new String[3];
+    private TextView[] exerciseRepsWeight = new TextView[3];
+    private String date;
     private boolean todayOrOld;
 
-    static final int REQUEST_VIDEO_CAPTURE = 1;
-    static final String EXTRA_EXERCISE_NUMBER = "com.example.fitnessjournal.Presenter.FollowProgramPresenter.EXTRA_EXERCISE_NUMBER";
+    private static final int REQUEST_VIDEO_CAPTURE = 1;
 
 
     public FollowProgramPresenter(FollowProgramActivity view) {
@@ -84,8 +82,10 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
                 JournalProvider.JOURNAL_TABLE_COL_FIREBASE_ID,
                 JournalProvider.JOURNAL_TABLE_COL_PROGRAM };
 
-        String selectionArgs[] = {ID };
+        String selectionArgs[] = { ID };
 
+        //TODO Update this to use FirebaseID... should send FirebaseID in intent extra rather than ID
+        //Queries the DB with local ID to retrieve FirebaseID and program
         Cursor myCursor = view.getContentResolver().query(JournalProvider.CONTENT_URI,projection,"_ID = ?",selectionArgs,null);
         if (myCursor != null && myCursor.getCount() > 0){
             myCursor.moveToFirst();
@@ -96,27 +96,33 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
         fm = view.getSupportFragmentManager();
     }
 
+    //Runs when user selects Todays Workout
     public void goToTodaysWorkout() {
         if (!program.equals("None")) {
+            //Sets the date
             Calendar cal = Calendar.getInstance();
             parseDate(cal);
+
+            //Loads a ViewWorkoutFragment with true flag
             loadFragment(true);
         }
         else {
+            //If the user has not uploaded a program, they receive message and nothing happens
             Toast.makeText(view, "No program uploaded!", Toast.LENGTH_LONG).show();
         }
     }
 
+    //Runs when user selects View Previous Workout
     public void goToPreviousWorkout() {
         //Opens the calendar dialog and sets the date for the alarm
         DialogFragment datePicker = new DatePickerFragment(this);
         datePicker.show(view.getSupportFragmentManager(), "date picker");
-        //loadFragment();
     }
 
-    //Date from calendar dialog is sent here
+    //Date from calendar dialog is sent here.. will run automatically after datePicker fragment is used
     @Override
     public void onDateSet(DatePicker dateView, int year, int month, int day) {
+        //Sets the date (using input from datePicker)
         Calendar cal = Calendar.getInstance();
         cal.set(year, month, day);
         parseDate(cal);
@@ -132,42 +138,55 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
 
         final String selectionArgs[] = { firebaseID, date };
 
+        //Queries the VideoDB with FirebaseID to find all video entries for this user on the set date
         Cursor myCursor = view.getContentResolver().query(VideoProvider.CONTENT_URI,projection,"FIREBASE_ID = ? AND DATE = ?",selectionArgs,null);
 
+        //Retrieves the set exercise names, set numbers, and reps/weight data from the cursor and sets them to method variables
         if (myCursor != null && myCursor.getCount() > 0) {
-            myCursor.moveToFirst();
             ArrayList<String> oldExercisesTemp = new ArrayList<>();
             StringBuilder oldSetNumbersTemp = new StringBuilder();
             StringBuilder oldRepsWeightTemp = new StringBuilder();
 
-            oldExercisesTemp.add(myCursor.getString(4));
-
-            for (myCursor.moveToNext(); !myCursor.isAfterLast(); myCursor.moveToNext()) {
-                for (String s : oldExercisesTemp) {
-                    if (!myCursor.getString(4).equals(s)) {
+            //Exercise name is myCursor(4).. fills oldExercises string with all exercises that have a recorded video attached
+            for (myCursor.moveToFirst(); !myCursor.isAfterLast(); myCursor.moveToNext()) {
+                if (oldExercisesTemp.isEmpty()) {
+                    oldExercisesTemp.add(myCursor.getString(4));
+                }
+                else {
+                    if (!oldExercisesTemp.contains(myCursor.getString(4))) {
                         oldExercisesTemp.add(myCursor.getString(4));
                     }
                 }
             }
+
+            //Each exercise is delimited with an ;
             oldExercises = android.text.TextUtils.join(";", oldExercisesTemp);
+
+            //SetNumber is myCursor(5) and repsWeight is myCursor(6)
             ArrayList<String> tempSetList = new ArrayList<>();
             ArrayList<String> tempRepsWeightList = new ArrayList<>();
             for (String s : oldExercisesTemp) {
                     tempSetList.clear();
+                    tempRepsWeightList.clear();
+
+                    //Adds setNumber and repsWeight data to corresponding position in list that matches with exercise name
                     for (myCursor.moveToFirst(); !myCursor.isAfterLast(); myCursor.moveToNext()) {
                         if (myCursor.getString(4).equals(s)) {
                             tempSetList.add(myCursor.getString(5));
                             tempRepsWeightList.add(myCursor.getString(6));
                         }
                     }
-                    String tempSet = android.text.TextUtils.join(",", tempSetList);
-                    String tempRepsWeight = android.text.TextUtils.join(",", tempRepsWeightList);
 
-                    oldSetNumbersTemp.append(tempSet + ";");
-                    oldRepsWeightTemp.append(tempRepsWeight + ";");
+                    //Each item is delimited with a , per exercise and separated by ; between exercises
+                    oldSetNumbersTemp.append(android.text.TextUtils.join(",", tempSetList) + ";");
+                    oldRepsWeightTemp.append(android.text.TextUtils.join(",", tempRepsWeightList) + ";");
             }
             oldSetNumbers = oldSetNumbersTemp.toString();
             oldRepsWeight = oldRepsWeightTemp.toString();
+
+            myCursor.close();
+
+            //Loads ViewWorkoutFragment with false flag
             loadFragment(false);
         }
         else {
@@ -226,41 +245,25 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
         todayOrOld = false;
 
         String[] exercises = oldExercises.split(";");
+        numOldExercises = exercises.length;
+
         Spinner[] spinners = fragment.getSpinners();
         TextView[] exerciseTitleTextViews = fragment.getTitleTextViews();
         exerciseRepsWeight = fragment.getRepsWeightTextViews();
 
         String[] setInfo = oldSetNumbers.split(";");
 
-        for (int i = 0; i < exercises.length; i++) {
+        for (int i = 0; i < numOldExercises; i++) {
             String[] items = setInfo[i].split(",");
             ArrayAdapter<String> adapter = new ArrayAdapter<>(view, R.layout.spinner_text, items);
             adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown);
             spinners[i].setAdapter(adapter);
             exerciseTitleTextViews[i].setText(exercises[i]);
         }
-        switch(exercises.length) {
-            case 0:
-                view.findViewById(R.id.exercise1_follow).setVisibility(View.GONE);
-                view.findViewById(R.id.exercise2_follow).setVisibility(View.GONE);
-                view.findViewById(R.id.exercise3_follow).setVisibility(View.GONE);
-                break;
-            case 1:
-                view.findViewById(R.id.exercise2_follow).setVisibility(View.GONE);
-                view.findViewById(R.id.exercise3_follow).setVisibility(View.GONE);
-                break;
-            case 2:
-                view.findViewById(R.id.exercise3_follow).setVisibility(View.GONE);
-                break;
-            default:
-                break;
-
-        }
+        fragment.hideLayouts(numOldExercises);
     }
 
-
-
-    public void loadFragment(boolean todayOrOld) {
+    private void loadFragment(boolean todayOrOld) {
         FragmentTransaction ft = fm.beginTransaction();
         ft.replace(R.id.placeholder_follow, new ViewWorkoutFragment(this, todayOrOld));
 
@@ -296,16 +299,34 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
             }
         }
         else {
-            String[] temp = oldRepsWeight.split(",");
+            String[] repsWeightInfo = oldRepsWeight.split(";");
+            String[] setInfo = oldSetNumbers.split(";");
+
             switch (parent.getId()) {
                 case R.id.exercise1_spinner:
-                    exerciseRepsWeight[0].setText(temp[0]);
+                    String[] temp1 = repsWeightInfo[0].split(",");
+                    exerciseRepsWeight[0].setText(temp1[pos]);
+
+                    String[] items1 = setInfo[0].split(",");
+                    setNumber[0] = items1[pos];
                     break;
                 case R.id.exercise2_spinner:
-                    exerciseRepsWeight[1].setText(temp[1]);
+                    if (numOldExercises > 1) {
+                        String[] temp2 = repsWeightInfo[1].split(",");
+                        exerciseRepsWeight[1].setText(temp2[pos]);
+
+                        String[] items2 = setInfo[1].split(",");
+                        setNumber[1] = items2[pos];
+                    }
                     break;
                 case R.id.exercise3_spinner:
-                    exerciseRepsWeight[2].setText(temp[2]);
+                    if (numOldExercises > 1) {
+                        String[] temp3 = repsWeightInfo[2].split(",");
+                        exerciseRepsWeight[2].setText(temp3[pos]);
+
+                        String[] items3 = setInfo[2].split(",");
+                        setNumber[2] = items3[pos];
+                    }
                     break;
                 default:
                     break;
@@ -390,14 +411,14 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
         );
 
         //Save a file: path for use with ACTION_VIEW intents
-        currentVideoPath = video.getAbsolutePath();
+        String currentVideoPath = video.getAbsolutePath();
 
         ContentValues myCV = new ContentValues();
         myCV.put(VideoProvider.VIDEO_TABLE_COL_FILENAME, currentVideoPath);
         myCV.put(VideoProvider.VIDEO_TABLE_COL_FIREBASE_ID, firebaseID);
         myCV.put(VideoProvider.VIDEO_TABLE_COL_DATE, date);
         myCV.put(VideoProvider.VIDEO_TABLE_COL_EXERCISE, exerciseInfo[exercise][0]);
-        myCV.put(VideoProvider.VIDEO_TABLE_COL_REPSWEIGHT, exerciseRepsWeight[exercise].toString());
+        myCV.put(VideoProvider.VIDEO_TABLE_COL_REPSWEIGHT, exerciseRepsWeight[exercise].getText().toString());
 
         switch (exercise) {
             case 0:
@@ -417,7 +438,7 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
         return video;
     }
 
-    public void viewVideo(int exercise) {
+    public void viewVideo(int exercise, String exerciseName) {
         String[] projection = {
                 VideoProvider.VIDEO_TABLE_COL_ID,
                 VideoProvider.VIDEO_TABLE_COL_FIREBASE_ID,
@@ -426,7 +447,7 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
                 VideoProvider.VIDEO_TABLE_COL_EXERCISE,
                 VideoProvider.VIDEO_TABLE_COL_SETNUMBER };
 
-        String selectionArgs[] = { firebaseID, date, exerciseInfo[exercise][0], setNumber[exercise] };
+        String selectionArgs[] = { firebaseID, date, exerciseName, setNumber[exercise] };
 
         Cursor myCursor = view.getContentResolver().query(VideoProvider.CONTENT_URI,projection,"FIREBASE_ID = ? AND DATE = ? AND EXERCISE = ? AND SETNUMBER = ?",selectionArgs,null);
         if (myCursor != null && myCursor.getCount() > 0) {
@@ -434,7 +455,7 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
             String videoPath = myCursor.getString(2);
 
             FragmentTransaction ft = fm.beginTransaction();
-            ft.replace(R.id.placeholder_view_video, new VideoViewerFragment(this, videoPath, exercise));
+            ft.replace(R.id.placeholder_view_video, new VideoViewerFragment(this, videoPath, exercise, exerciseName));
             ft.addToBackStack(null);
             ft.commit();
         }
@@ -443,8 +464,8 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
         }
     }
 
-    public void setFavorite(int exercise) {
-        String selectionArgs[] = { firebaseID, date, exerciseInfo[exercise][0], setNumber[exercise] };
+    public void setFavorite(int exercise, String exerciseName) {
+        String selectionArgs[] = { firebaseID, date, exerciseName, setNumber[exercise] };
         ContentValues myCV = new ContentValues();
         myCV.put(VideoProvider.VIDEO_TABLE_COL_FAVORITE, "true");
         view.getContentResolver().update(VideoProvider.CONTENT_URI, myCV, "FIREBASE_ID = ? AND DATE = ? AND EXERCISE = ? AND SETNUMBER = ?", selectionArgs);

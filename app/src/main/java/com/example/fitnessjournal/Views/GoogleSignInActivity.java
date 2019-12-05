@@ -16,7 +16,6 @@ package com.example.fitnessjournal.Views;
  * limitations under the License.
  */
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -26,10 +25,7 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
-
-import com.example.fitnessjournal.Presenters.HomePresenter;
 import com.example.fitnessjournal.R;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -45,7 +41,6 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-
 import static com.example.fitnessjournal.Presenters.HomePresenter.EXTRA_MESSAGE_SIGNOUT;
 
 
@@ -82,10 +77,6 @@ public class GoogleSignInActivity extends BaseActivity implements View.OnClickLi
         mStatusTextView = findViewById(R.id.status);
         mEmailField = findViewById(R.id.fieldEmail);
         mPasswordField = findViewById(R.id.fieldPassword);
-
-        //For testing
-        mEmailField.setText("w1@gmail.com");
-        mPasswordField.setText("password");
 
         // Button listeners
         findViewById(R.id.signInButton).setOnClickListener(this);
@@ -152,6 +143,8 @@ public class GoogleSignInActivity extends BaseActivity implements View.OnClickLi
                             Log.d(TAG, "createUserWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             updateUI(user);
+
+                            //Starts Home Activity as ActivityForResult.. result used to Sign Out properly
                             Intent intent = new Intent(GoogleSignInActivity.this, HomeScreenActivity.class);
                             intent.putExtra(EXTRA_MESSAGE_FIREBASEID, user.getUid());
                             int requestCode = 2;
@@ -190,6 +183,8 @@ public class GoogleSignInActivity extends BaseActivity implements View.OnClickLi
                             Log.d(TAG, "signInWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             updateUI(user);
+
+                            //Starts Home Activity as ActivityForResult.. result used to Sign Out properly
                             Intent intent = new Intent(GoogleSignInActivity.this, HomeScreenActivity.class);
                             intent.putExtra(EXTRA_MESSAGE_FIREBASEID, user.getUid());
                             int requestCode = 2;
@@ -244,6 +239,7 @@ public class GoogleSignInActivity extends BaseActivity implements View.OnClickLi
     }
     // [END onactivityresult]
 
+    //TODO Get Google Sign Button to work... only emailSignIn currently functional
     // [START auth_with_google]
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
         Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
@@ -261,6 +257,8 @@ public class GoogleSignInActivity extends BaseActivity implements View.OnClickLi
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             updateUI(user);
+
+                            //Starts Home Activity as ActivityForResult.. result used to Sign Out properly
                             Intent intent = new Intent(GoogleSignInActivity.this, HomeScreenActivity.class);
                             intent.putExtra(EXTRA_MESSAGE_FIREBASEID, user.getUid());
                             int requestCode = 2;

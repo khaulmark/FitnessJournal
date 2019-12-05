@@ -8,11 +8,11 @@ import com.example.fitnessjournal.Models.JournalProvider;
 import com.example.fitnessjournal.Views.FollowProgramActivity;
 import com.example.fitnessjournal.Views.HomeScreenActivity;
 import com.example.fitnessjournal.Views.UploadProgramActivity;
-
 import static android.app.Activity.RESULT_OK;
 import static com.example.fitnessjournal.Views.GoogleSignInActivity.EXTRA_MESSAGE_FIREBASEID;
 
 public class HomePresenter implements Presenter {
+
     private HomeScreenActivity view;
     private String username;
     private String ID;
@@ -40,6 +40,7 @@ public class HomePresenter implements Presenter {
         String[] selectionArgs = {
                 firebaseID };
 
+        //Uses Google FirebaseID to get data about local user OR create a new local user with FirebaseID
         Cursor myCursor = view.getContentResolver().query(JournalProvider.CONTENT_URI,projection,"FIREBASE_ID = ?",selectionArgs,null);
 
         if (myCursor != null && myCursor.getCount() > 0){
@@ -47,9 +48,12 @@ public class HomePresenter implements Presenter {
             ID = myCursor.getString(0);
             username = myCursor.getString(2);
             program = myCursor.getString(3);
+
+            //Log to check current user's local data
             Log.d("login", "ID = " + ID + " FIREBASEID = " + firebaseID + " USERNAME = " + username + " PROGRAM = " + program);
         }
         else {
+            //Create new user with default values and existing FirebaseID
             ContentValues myCV = new ContentValues();
             username = "User";
             program = "None";
@@ -66,6 +70,7 @@ public class HomePresenter implements Presenter {
         myCursor.close();
     }
 
+    //Starts Upload Activity
     public void startUploadActivity() {
         Intent intent = new Intent(view, UploadProgramActivity.class);
         intent.putExtra(EXTRA_MESSAGE_ID, ID);
@@ -73,6 +78,7 @@ public class HomePresenter implements Presenter {
         view.startActivity(intent);
     }
 
+    //Starts Follow Program Activity
     public void startFollowProgramActivity() {
         Intent intent = new Intent(view, FollowProgramActivity.class);
         intent.putExtra(EXTRA_MESSAGE_ID, ID);

@@ -12,11 +12,10 @@ import com.example.fitnessjournal.R;
 
 public class WorkoutSetFragment extends Fragment implements View.OnClickListener {
 
+    private UploadProgramPresenter presenter;
+
     //Edit texts for exercises
     private EditText[][] exerciseEditText = new EditText[3][4];
-
-    //Presenter for UploadProgramActivity
-    private UploadProgramPresenter presenter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,12 +66,10 @@ public class WorkoutSetFragment extends Fragment implements View.OnClickListener
                 //If the user saves the workout
                 presenter.onSaveWorkout(exerciseEditText, true);
                 break;
-
             case R.id.fragment_btn_discard_workout:
                 //If the user discards the workout... will set it to a Rest day
                 presenter.onSaveWorkout(exerciseEditText, false);
                 break;
-
             default:
                 break;
         }

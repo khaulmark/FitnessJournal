@@ -8,30 +8,28 @@ import android.net.Uri;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.fitnessjournal.Models.JournalProvider;
 import com.example.fitnessjournal.Models.MyAdapter;
 import com.example.fitnessjournal.R;
 import com.example.fitnessjournal.Views.UploadProgramActivity;
 import com.example.fitnessjournal.Views.WorkoutSetFragment;
-
 import java.util.ArrayList;
 
 import static com.example.fitnessjournal.Presenters.HomePresenter.EXTRA_MESSAGE_ID;
 
 public class UploadProgramPresenter implements Presenter {
+
     private UploadProgramActivity view;
     private WorkoutSetFragment fragment;
+    private FragmentManager fm;
 
     private String ID;
     private String program;
     private int fragmentPosition;
-    private FragmentManager fm;
 
     private ArrayList<String> workoutDays = new ArrayList<>();
     private ArrayList<String> workoutString = new ArrayList<>();
@@ -52,11 +50,14 @@ public class UploadProgramPresenter implements Presenter {
 
         String selectionArgs[] = {ID };
 
+        //TODO Switch this to use FirebaseID to be more consistent with rest of App
+        //Uses local ID to query DB for program string
         Cursor myCursor = view.getContentResolver().query(JournalProvider.CONTENT_URI,projection,"_ID = ?",selectionArgs,null);
         if (myCursor != null && myCursor.getCount() > 0){
             myCursor.moveToFirst();
             program = myCursor.getString(1);
         }
+        myCursor.close();
 
         fm = view.getSupportFragmentManager();
 
@@ -69,6 +70,7 @@ public class UploadProgramPresenter implements Presenter {
         workoutDays.add("Saturday");
         workoutDays.add("Sunday");
         //TODO Add more days to the program and/or make it more dynamic
+        // Also add a way for users to upload CSV file with program
 
         //Each day is initialized as a Rest day
         for (int i = 0; i < workoutDays.size(); i++) {
@@ -121,7 +123,6 @@ public class UploadProgramPresenter implements Presenter {
 
                 String[] exerciseSplit = workoutSplit[i].split(",");
                 for (int j = 0; j < exerciseSplit.length; j++) {
-                    //exerciseEditText[i][j].setText(exerciseSplit[j]);
                     fragment.setExerciseEditText(i, j, exerciseSplit[j]);
                 }
             }

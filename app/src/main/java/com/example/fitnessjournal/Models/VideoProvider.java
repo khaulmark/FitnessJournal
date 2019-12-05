@@ -201,7 +201,7 @@ public class VideoProvider extends ContentProvider {
 
         MainDatabaseHelper(Context context) {
             super(context, DBNAME, null, 6);
-            onUpgrade(getReadableDatabase(), 0, 4);
+            //onUpgrade(getReadableDatabase(), 0, 4);
         }
 
         /*

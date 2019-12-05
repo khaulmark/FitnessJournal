@@ -1,13 +1,9 @@
 package com.example.fitnessjournal.Views;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.fitnessjournal.Presenters.FollowProgramPresenter;
 import com.example.fitnessjournal.R;
 
@@ -49,14 +45,5 @@ public class FollowProgramActivity extends AppCompatActivity implements View.OnC
             default:
                 break;
         }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        super.onActivityResult(requestCode, resultCode, intent);
-        /*if (requestCode == REQUEST_VIDEO_CAPTURE && resultCode == RESULT_OK) {
-            Uri videoUri = intent.getData();
-            videoView.setVideoURI(videoUri);
-        }*/
     }
 }

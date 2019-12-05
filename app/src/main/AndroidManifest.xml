@@ -15,10 +15,14 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
 
         <activity
-            android:name=".Views.GoogleSignInActivity" android:label="Video Fitness Journal">
+            android:name=".Views.GoogleSignInActivity"
+            android:label="Video Fitness Journal"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait">
                 <intent-filter>
                     <action android:name="android.intent.action.MAIN" />
                     <category android:name="android.intent.category.LAUNCHER" />
@@ -26,18 +30,27 @@
         </activity>
 
         <activity
-            android:name=".Views.HomeScreenActivity" android:label="Home" android:parentActivityName=".Views.GoogleSignInActivity">
+            android:name=".Views.HomeScreenActivity"
+            android:label="Home"
+            android:parentActivityName=".Views.GoogleSignInActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait">
         </activity>
 
         <activity
-            android:name=".Views.UploadProgramActivity" android:label="Upload Program" android:parentActivityName=".Views.HomeScreenActivity">
+            android:name=".Views.UploadProgramActivity"
+            android:label="Upload Program"
+            android:parentActivityName=".Views.HomeScreenActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait">
         </activity>
 
         <activity
-            android:name=".Views.FollowProgramActivity" android:label="Follow Program" android:parentActivityName=".Views.HomeScreenActivity">
-        </activity>
-
-        <activity android:name=".Views.VideoCapture" android:label="Capture Video" android:parentActivityName=".Views.FollowProgramActivity">
+            android:name=".Views.FollowProgramActivity"
+            android:label="Follow Program"
+            android:parentActivityName=".Views.HomeScreenActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait">
         </activity>
 
         <provider
