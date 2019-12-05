@@ -34,6 +34,7 @@ public class VideoProvider extends ContentProvider {
     public static final String VIDEO_TABLE_COL_EXERCISE = "EXERCISE";
     public static final String VIDEO_TABLE_COL_SETNUMBER = "SETNUMBER";
     public static final String VIDEO_TABLE_COL_FAVORITE = "FAVORITE";
+    public static final String VIDEO_TABLE_COL_REPSWEIGHT = "REPSWEIGHT";
 
     //Table create string based on column names
     private static final String SQL_CREATE_MAIN = "CREATE TABLE " +
@@ -45,7 +46,8 @@ public class VideoProvider extends ContentProvider {
             VIDEO_TABLE_COL_DATE + " TEXT, " +
             VIDEO_TABLE_COL_EXERCISE + " TEXT, " +
             VIDEO_TABLE_COL_SETNUMBER + " TEXT, " +
-            VIDEO_TABLE_COL_FAVORITE + " TEXT) ";
+            VIDEO_TABLE_COL_FAVORITE + " TEXT, " +
+            VIDEO_TABLE_COL_REPSWEIGHT + " TEXT) ";
 
     //URI Matcher object to facilitate switch cases between URIs
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -198,8 +200,8 @@ public class VideoProvider extends ContentProvider {
          */
 
         MainDatabaseHelper(Context context) {
-            super(context, DBNAME, null, 5);
-            //onUpgrade(getReadableDatabase(), 0, 4);
+            super(context, DBNAME, null, 6);
+            onUpgrade(getReadableDatabase(), 0, 4);
         }
 
         /*

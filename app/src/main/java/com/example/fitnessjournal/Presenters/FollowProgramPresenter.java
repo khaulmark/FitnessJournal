@@ -61,7 +61,9 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
     private FragmentManager fm;
     private String currentVideoPath;
     private String oldSetNumbers;
+    private String oldRepsWeight;
     private String oldExercises;
+    private boolean todayOrOld;
 
     static final int REQUEST_VIDEO_CAPTURE = 1;
     static final String EXTRA_EXERCISE_NUMBER = "com.example.fitnessjournal.Presenter.FollowProgramPresenter.EXTRA_EXERCISE_NUMBER";
@@ -125,7 +127,8 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
                 VideoProvider.VIDEO_TABLE_COL_FILENAME,
                 VideoProvider.VIDEO_TABLE_COL_DATE,
                 VideoProvider.VIDEO_TABLE_COL_EXERCISE,
-                VideoProvider.VIDEO_TABLE_COL_SETNUMBER };
+                VideoProvider.VIDEO_TABLE_COL_SETNUMBER,
+                VideoProvider.VIDEO_TABLE_COL_REPSWEIGHT };
 
         final String selectionArgs[] = { firebaseID, date };
 
@@ -135,6 +138,7 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
             myCursor.moveToFirst();
             ArrayList<String> oldExercisesTemp = new ArrayList<>();
             StringBuilder oldSetNumbersTemp = new StringBuilder();
+            StringBuilder oldRepsWeightTemp = new StringBuilder();
 
             oldExercisesTemp.add(myCursor.getString(4));
 
@@ -146,18 +150,24 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
                 }
             }
             oldExercises = android.text.TextUtils.join(";", oldExercisesTemp);
-            ArrayList<String> tempList = new ArrayList<>();
+            ArrayList<String> tempSetList = new ArrayList<>();
+            ArrayList<String> tempRepsWeightList = new ArrayList<>();
             for (String s : oldExercisesTemp) {
-                    tempList.clear();
+                    tempSetList.clear();
                     for (myCursor.moveToFirst(); !myCursor.isAfterLast(); myCursor.moveToNext()) {
                         if (myCursor.getString(4).equals(s)) {
-                            tempList.add(myCursor.getString(5));
+                            tempSetList.add(myCursor.getString(5));
+                            tempRepsWeightList.add(myCursor.getString(6));
                         }
                     }
-                    String temp = android.text.TextUtils.join(",", tempList);
-                    oldSetNumbersTemp.append(temp + ";");
+                    String tempSet = android.text.TextUtils.join(",", tempSetList);
+                    String tempRepsWeight = android.text.TextUtils.join(",", tempRepsWeightList);
+
+                    oldSetNumbersTemp.append(tempSet + ";");
+                    oldRepsWeightTemp.append(tempRepsWeight + ";");
             }
             oldSetNumbers = oldSetNumbersTemp.toString();
+            oldRepsWeight = oldRepsWeightTemp.toString();
             loadFragment(false);
         }
         else {
@@ -176,6 +186,7 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
 
     public void onViewWorkoutFragmentCreated(ViewWorkoutFragment fragment) {
         this.fragment = fragment;
+        todayOrOld = true;
 
         String[] workouts = program.split("\n");
         String currentWorkout = workouts[dayOfWeek];
@@ -212,34 +223,39 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
 
     public void onViewOldWorkoutFragmentCreated(ViewWorkoutFragment fragment) {
         this.fragment = fragment;
+        todayOrOld = false;
 
-        //String[] workouts = program.split("\n");
-        //String currentWorkout = workouts[dayOfWeek];
-
-
-        String[] exercises = currentWorkout.split(";");
+        String[] exercises = oldExercises.split(";");
         Spinner[] spinners = fragment.getSpinners();
         TextView[] exerciseTitleTextViews = fragment.getTitleTextViews();
         exerciseRepsWeight = fragment.getRepsWeightTextViews();
 
-        exerciseInfo[0] = exercises[0].split(",");
-        exerciseInfo[1] = exercises[1].split(",");
-        exerciseInfo[2] = exercises[2].split(",");
+        String[] setInfo = oldSetNumbers.split(";");
 
         for (int i = 0; i < exercises.length; i++) {
-            //String[] exerciseInfo = exercises[i].split(",");
-            int setNumber = Integer.parseInt(exerciseInfo[i][1]);
-            String[] items = new String[setNumber];
-            for (int j = 0; j < setNumber; j++) {
-                items[j] = String.valueOf(j + 1);
-            }
+            String[] items = setInfo[i].split(",");
             ArrayAdapter<String> adapter = new ArrayAdapter<>(view, R.layout.spinner_text, items);
             adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown);
             spinners[i].setAdapter(adapter);
-            exerciseTitleTextViews[i].setText(exerciseInfo[i][0]);
+            exerciseTitleTextViews[i].setText(exercises[i]);
         }
+        switch(exercises.length) {
+            case 0:
+                view.findViewById(R.id.exercise1_follow).setVisibility(View.GONE);
+                view.findViewById(R.id.exercise2_follow).setVisibility(View.GONE);
+                view.findViewById(R.id.exercise3_follow).setVisibility(View.GONE);
+                break;
+            case 1:
+                view.findViewById(R.id.exercise2_follow).setVisibility(View.GONE);
+                view.findViewById(R.id.exercise3_follow).setVisibility(View.GONE);
+                break;
+            case 2:
+                view.findViewById(R.id.exercise3_follow).setVisibility(View.GONE);
+                break;
+            default:
+                break;
 
-        fragment.restUI(false);
+        }
     }
 
 
@@ -261,24 +277,39 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
 
         //TODO Eventually add a way for user to enter different weight/reps for each set
 
-        //exerciseRepsWeight.setText(exercise1Info[3] + " for " + exercise1Info[2]);
-        //Log.d("booty", "ID_ONITEMSELECTED = " + id + " POS = " + pos + " PARENTID = " + parent.getId());
-
-        switch(parent.getId()) {
-            case R.id.exercise1_spinner:
-                exerciseRepsWeight[0].setText(exerciseInfo[0][3] + " for " + exerciseInfo[0][2]);
-                setNumber[0] = String.valueOf(pos + 1);
-                break;
-            case R.id.exercise2_spinner:
-                exerciseRepsWeight[1].setText(exerciseInfo[1][3] + " for " + exerciseInfo[1][2]);
-                setNumber[1] = String.valueOf(pos + 1);
-                break;
-            case R.id.exercise3_spinner:
-                exerciseRepsWeight[2].setText(exerciseInfo[2][3] + " for " + exerciseInfo[2][2]);
-                setNumber[2] = String.valueOf(pos + 1);
-                break;
-            default:
-                break;
+        if (todayOrOld) {
+            switch (parent.getId()) {
+                case R.id.exercise1_spinner:
+                    exerciseRepsWeight[0].setText(exerciseInfo[0][3] + " for " + exerciseInfo[0][2]);
+                    setNumber[0] = String.valueOf(pos + 1);
+                    break;
+                case R.id.exercise2_spinner:
+                    exerciseRepsWeight[1].setText(exerciseInfo[1][3] + " for " + exerciseInfo[1][2]);
+                    setNumber[1] = String.valueOf(pos + 1);
+                    break;
+                case R.id.exercise3_spinner:
+                    exerciseRepsWeight[2].setText(exerciseInfo[2][3] + " for " + exerciseInfo[2][2]);
+                    setNumber[2] = String.valueOf(pos + 1);
+                    break;
+                default:
+                    break;
+            }
+        }
+        else {
+            String[] temp = oldRepsWeight.split(",");
+            switch (parent.getId()) {
+                case R.id.exercise1_spinner:
+                    exerciseRepsWeight[0].setText(temp[0]);
+                    break;
+                case R.id.exercise2_spinner:
+                    exerciseRepsWeight[1].setText(temp[1]);
+                    break;
+                case R.id.exercise3_spinner:
+                    exerciseRepsWeight[2].setText(temp[2]);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -366,6 +397,7 @@ public class FollowProgramPresenter implements Presenter, DatePickerDialog.OnDat
         myCV.put(VideoProvider.VIDEO_TABLE_COL_FIREBASE_ID, firebaseID);
         myCV.put(VideoProvider.VIDEO_TABLE_COL_DATE, date);
         myCV.put(VideoProvider.VIDEO_TABLE_COL_EXERCISE, exerciseInfo[exercise][0]);
+        myCV.put(VideoProvider.VIDEO_TABLE_COL_REPSWEIGHT, exerciseRepsWeight[exercise].toString());
 
         switch (exercise) {
             case 0:
